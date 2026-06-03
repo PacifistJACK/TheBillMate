@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <title>The Bill Mate - Manage your bills with effortless precision</title>
+  <meta name="description" content="Scan or upload any bill to instantly extract structured financial data using AI. No manual entry — just pure organisation powered by The Bill Mate."/>
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+
+  <link href="https://fonts.googleapis.com" rel="preconnect"/>
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary": "#ffffff",
+            "on-primary-fixed": "#131b2e",
+            "on-secondary-fixed": "#00201d",
+            "error": "#ba1a1a",
+            "secondary-fixed-dim": "#6bd8cb",
+            "primary-fixed": "#dae2fd",
+            "on-primary": "#ffffff",
+            "on-primary-container": "#7c839b",
+            "surface-bright": "#f7f9fb",
+            "secondary-container": "#86f2e4",
+            "surface": "#f7f9fb",
+            "background": "#f7f9fb",
+            "on-tertiary-fixed": "#001a42",
+            "tertiary-fixed-dim": "#adc6ff",
+            "outline-variant": "#c6c6cd",
+            "on-background": "#191c1e",
+            "on-tertiary": "#ffffff",
+            "primary-fixed-dim": "#bec6e0",
+            "surface-container": "#eceef0",
+            "on-secondary-fixed-variant": "#005049",
+            "inverse-on-surface": "#eff1f3",
+            "on-error-container": "#93000a",
+            "surface-container-highest": "#e0e3e5",
+            "inverse-primary": "#bec6e0",
+            "surface-tint": "#565e74",
+            "primary-container": "#131b2e",
+            "inverse-surface": "#2d3133",
+            "secondary-fixed": "#89f5e7",
+            "primary": "#000000",
+            "outline": "#76777d",
+            "surface-dim": "#d8dadc",
+            "on-tertiary-container": "#3980f4",
+            "tertiary-fixed": "#d8e2ff",
+            "secondary": "#006a61",
+            "on-surface": "#191c1e",
+            "on-primary-fixed-variant": "#3f465c",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#004395",
+            "on-secondary-container": "#006f66",
+            "on-error": "#ffffff",
+            "surface-container-high": "#e6e8ea",
+            "error-container": "#ffdad6",
+            "on-surface-variant": "#45464d",
+            "tertiary": "#000000",
+            "surface-variant": "#e0e3e5",
+            "tertiary-container": "#001a42",
+            "surface-container-low": "#f2f4f6"
+          },
+          borderRadius: {
+            DEFAULT: "0.25rem",
+            lg: "0.5rem",
+            xl: "0.75rem",
+            "2xl": "1rem",
+            full: "9999px"
+          },
+          spacing: {
+            unit: "8px",
+            "container-max": "1200px",
+            "margin-desktop": "40px",
+            "margin-mobile": "16px",
+            gutter: "24px"
+          },
+          fontFamily: {
+            "title-lg":           ["Inter"],
+            "label-sm":           ["Inter"],
+            "headline-lg-mobile": ["Inter"],
+            "headline-md":        ["Inter"],
+            display:              ["Inter"],
+            "script-md":          ["Inter"],
+            "headline-lg":        ["Inter"],
+            "label-md":           ["Inter"],
+            "body-lg":            ["Inter"]
+          },
+          fontSize: {
+            "title-lg":           ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "label-sm":           ["12px", { lineHeight: "16px", fontWeight: "600" }],
+            "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
+            "headline-md":        ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            display:              ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-md":            ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "headline-lg":        ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "label-md":           ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "500" }],
+            "body-lg":            ["18px", { lineHeight: "28px", fontWeight: "400" }]
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    .icon-fill {
+      font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    }
+    .scan-line {
+      animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    @keyframes scan {
+      0%,  100% { top: 0%;   opacity: 0; }
+      10%,  90% { opacity: 1; }
+      50%        { top: 100%; }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .spinner {
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spinReverse {
+      to { transform: rotate(-360deg); }
+    }
+    .spinner-reverse {
+      animation: spinReverse 1.5s linear infinite;
+    }
+    @keyframes logoPulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(0, 106, 97, 0.2)); }
+      50% { transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(0, 106, 97, 0.5)); }
+    }
+    .logo-pulse {
+      animation: logoPulse 2s ease-in-out infinite;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0);    }
+    }
+    .animate-result {
+      animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    #camera-modal video,
+    #camera-modal canvas {
+      max-height: 70vh;
+      object-fit: cover;
+      border-radius: 0.75rem;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.4; transform: scale(0.75); }
+    }
+    .pulse-dot { animation: pulseDot 1.4s ease-in-out infinite; }
+    @keyframes animSpin { to { transform: rotate(360deg); } }
+    .animate-spin { animation: animSpin 0.8s linear infinite; display: inline-block; }
+  </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md min-h-screen flex flex-col">
+
+  <!-- ── Navbar ── -->
+  <nav class="bg-surface w-full top-0 sticky z-50 border-b border-surface-container shadow-sm">
+    <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+      <div class="flex items-center gap-2">
+        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover"/>
+        <div class="font-title-lg text-title-lg font-bold text-primary">The Bill Mate</div>
+      </div>
+
+      <div class="hidden md:flex items-center gap-gutter font-body-md text-body-md">
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#how-it-works">How it Works</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#security">Security</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#my-bills">My Bills</a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-lg">
+          <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[20px]">receipt_long</span>
+          <span class="font-label-md text-label-md text-on-secondary-container font-semibold">My Bills</span>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="flex-grow">
+
+    <!-- ── Hero ── -->
+    <section class="px-margin-mobile md:px-margin-desktop py-16 md:py-24 max-w-container-max mx-auto flex flex-col items-center text-center">
+      <h1 class="font-display text-display text-primary mb-6 max-w-4xl leading-tight">
+        Manage your bills with<br class="hidden md:block"/> effortless precision.
+      </h1>
+      <p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl">
+        Scan or upload any bill to instantly extract details into structured data.
+        No more manual entry — just pure organisation.
+      </p>
+
+      <div id="scan-section" class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full max-w-3xl">
+        <button
+          id="btn-camera"
+          onclick="openCameraModal()"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer"
+        >
+          <div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+          <div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-2">
+            <span class="material-symbols-outlined text-3xl icon-fill">photo_camera</span>
+          </div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Scan with Camera</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Use your device to capture instantly</div>
+        </button>
+
+        <label
+          id="btn-upload"
+          for="file-upload-input"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden cursor-pointer"
+        >
+          <div class="absolute inset-0 bg-primary-fixed/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+          <div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center mb-2">
+            <span class="material-symbols-outlined text-3xl icon-fill">upload_file</span>
+          </div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload Image</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Select a file from your gallery</div>
+        </label>
+
+        <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)"/>
+      </div>
+    </section>
+
+    <!-- ── Animated preview ── -->
+    <section class="px-margin-mobile md:px-margin-desktop pb-24 max-w-container-max mx-auto relative">
+      <div class="relative w-full aspect-video max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18)] bg-surface-container-lowest border border-surface-container flex items-center justify-center">
+        <div
+          class="absolute inset-0 bg-cover bg-center opacity-20"
+          style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')"
+          aria-hidden="true"
+        ></div>
+        <div class="relative w-64 h-80 bg-surface-container-lowest rounded-lg shadow-lg border border-outline-variant p-4 flex flex-col">
+          <div class="w-full h-4 bg-surface-container rounded mb-4"></div>
+          <div class="w-3/4 h-3 bg-surface-container rounded mb-8"></div>
+          <div class="space-y-3 flex-grow">
+            <div class="w-full h-2 bg-surface-container rounded"></div>
+            <div class="w-full h-2 bg-surface-container rounded"></div>
+            <div class="w-5/6 h-2 bg-surface-container rounded"></div>
+          </div>
+          <div class="mt-auto border-t border-surface-container pt-4 flex justify-between">
+            <div class="w-1/3 h-4 bg-secondary-container rounded"></div>
+            <div class="w-1/4 h-4 bg-primary-fixed rounded"></div>
+          </div>
+          <div class="absolute left-0 right-0 h-1 bg-secondary shadow-[0_0_8px_rgba(0,106,97,0.8)] scan-line z-10"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── How it Works ── -->
+    <section class="px-margin-mobile md:px-margin-desktop py-24 bg-surface-container-low" id="how-it-works">
+      <div class="max-w-container-max mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="font-headline-lg text-headline-lg text-primary mb-4">Intelligent Document Processing</h2>
+          <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+            Snap or upload a bill — a multimodal AI model reads it and hands you clean, structured data in seconds.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(250px,auto)]">
+          <div class="md:col-span-2 bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+            <div class="absolute -right-12 -top-12 w-48 h-48 bg-secondary-container/30 rounded-full blur-3xl group-hover:bg-secondary-container/50 transition-colors"></div>
+            <div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-secondary border border-surface-dim">
+              <span class="material-symbols-outlined">document_scanner</span>
+            </div>
+            <h3 class="font-headline-md text-headline-md text-primary mb-3">Scan to JSON</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
+              Snap or upload a photo of any bill and our AI reads it like a human would — picking out the vendor, date, every line item, quantity, price, tax, and total. It returns all of that as clean structured data instantly, with zero manual entry from you.
+            </p>
+          </div>
+
+          <div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col" id="security">
+            <div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-primary border border-surface-dim">
+              <span class="material-symbols-outlined">lock</span>
+            </div>
+            <h3 class="font-title-lg text-title-lg text-primary mb-3">Secure Storage</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">
+              Your financial data is stored securely in the cloud — tied to your account and never visible to others.
+              Privacy by design, always.
+            </p>
+          </div>
+
+          <div class="md:col-span-3 bg-primary-container text-on-primary-container rounded-2xl p-8 md:p-12 border border-surface-tint shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
+            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-secondary-fixed via-transparent to-transparent pointer-events-none"></div>
+            <div class="flex-1 relative z-10">
+              <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-6 text-primary-fixed border border-white/20">
+                <span class="material-symbols-outlined">history</span>
+              </div>
+              <h3 class="font-headline-md text-headline-md text-on-primary mb-3">Complete History</h3>
+              <p class="font-body-md text-body-md text-on-primary-container max-w-xl">
+                Never lose track of a payment again. Access a comprehensive archive of every bill you've ever processed,
+                categorised and filterable for absolute clarity.
+              </p>
+              <a
+                href="#my-bills"
+                class="inline-flex items-center gap-2 mt-6 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
+              >
+                <span class="material-symbols-outlined text-sm">visibility</span>
+                View My Bills
+              </a>
+            </div>
+            <div class="w-full md:w-1/3 h-48 bg-surface-container-lowest/5 rounded-xl border border-white/10 backdrop-blur-sm p-4 flex flex-col gap-3">
+              <div class="w-full h-10 bg-white/10 rounded flex items-center px-4 justify-between">
+                <div class="w-24 h-3 bg-white/20 rounded"></div>
+                <div class="w-12 h-3 bg-secondary-fixed/50 rounded"></div>
+              </div>
+              <div class="w-full h-10 bg-white/10 rounded flex items-center px-4 justify-between">
+                <div class="w-32 h-3 bg-white/20 rounded"></div>
+                <div class="w-16 h-3 bg-secondary-fixed/50 rounded"></div>
+              </div>
+              <div class="w-full h-10 bg-white/10 rounded flex items-center px-4 justify-between opacity-50">
+                <div class="w-20 h-3 bg-white/20 rounded"></div>
+                <div class="w-14 h-3 bg-secondary-fixed/50 rounded"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Result Card ── -->
+    <section id="result-section" class="hidden px-margin-mobile md:px-margin-desktop py-16 max-w-container-max mx-auto">
+      <div id="result-card" class="animate-result bg-surface-container-lowest rounded-2xl border border-surface-container shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] overflow-hidden">
+        <div class="bg-secondary px-8 py-6 flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <p class="font-label-sm text-label-sm text-on-secondary/70 uppercase tracking-widest mb-1">Extracted Bill</p>
+            <h2 id="result-vendor" class="font-headline-md text-headline-md text-on-secondary"></h2>
+          </div>
+          <div class="text-right">
+            <p class="font-label-sm text-label-sm text-on-secondary/70 uppercase tracking-widest mb-1">Date</p>
+            <p id="result-date" class="font-title-lg text-title-lg text-on-secondary"></p>
+          </div>
+        </div>
+
+        <div class="p-8">
+          <h3 class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-4">Line Items</h3>
+          <div class="overflow-x-auto rounded-xl border border-surface-container">
+            <table class="w-full text-left">
+              <thead class="bg-surface-container">
+                <tr>
+                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Item</th>
+                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-center">Qty</th>
+                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Price</th>
+                </tr>
+              </thead>
+              <tbody id="result-items" class="divide-y divide-surface-container"></tbody>
+            </table>
+          </div>
+
+          <div class="mt-6 flex flex-col items-end gap-2">
+            <div class="flex items-center gap-8 font-body-md text-body-md text-on-surface-variant">
+              <span>Tax</span>
+              <span id="result-tax" class="font-label-md text-label-md text-on-surface w-28 text-right"></span>
+            </div>
+            <div class="flex items-center gap-8 font-title-lg text-title-lg text-primary">
+              <span>Total</span>
+              <span id="result-total" class="w-28 text-right text-secondary"></span>
+            </div>
+          </div>
+
+          <div class="mt-8 flex flex-wrap gap-3">
+            <button
+              id="btn-scan-another"
+              onclick="resetUI()"
+              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
+            >
+              <span class="material-symbols-outlined text-base">add_a_photo</span>
+              Scan Another
+            </button>
+            <button
+              onclick="document.getElementById('my-bills-section').scrollIntoView({ behavior: 'smooth' }); loadBillHistory();"
+              class="inline-flex items-center gap-2 bg-surface-container text-on-surface px-5 py-2.5 rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors"
+            >
+              <span class="material-symbols-outlined text-base">history</span>
+              View All Bills
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── My Bills ── -->
+    <section id="my-bills" class="px-margin-mobile md:px-margin-desktop py-16 bg-surface-container-low">
+      <div id="my-bills-section" class="max-w-container-max mx-auto">
+        <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+          <div>
+            <h2 class="font-headline-lg text-headline-lg text-primary">My Bills</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
+          </div>
+          <button
+            id="btn-refresh-history"
+            onclick="loadBillHistory()"
+            class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
+          >
+            <span class="material-symbols-outlined text-base">refresh</span>
+            Refresh
+          </button>
+        </div>
+
+        <div id="history-list" class="space-y-4">
+          <div class="text-center text-on-surface-variant py-16 font-body-md text-body-md" id="history-empty-state">
+            <span class="material-symbols-outlined text-4xl block mb-3 text-outline">receipt_long</span>
+            Scan your first bill to see it appear here.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ── -->
+  <footer class="bg-surface-container-low w-full mt-auto border-t border-surface-container">
+    <div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-12 max-w-container-max mx-auto">
+      <div class="flex items-center gap-2 mb-6 md:mb-0">
+        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover"/>
+        <div class="font-title-lg text-title-lg font-bold text-primary">The Bill Mate</div>
+      </div>
+      <div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0 font-label-md text-label-md text-on-surface-variant">
+        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
+        <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+        <a class="hover:text-primary transition-colors" href="#">Contact Support</a>
+      </div>
+      <div class="font-label-md text-label-md text-on-surface-variant">© 2026 The Bill Mate. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <!-- ── Processing Modal ── -->
+  <div id="processing-modal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"></div>
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] p-10 flex flex-col items-center gap-6 min-w-[300px] max-w-sm mx-4">
+      <div class="relative w-24 h-24 flex items-center justify-center">
+        <div class="spinner absolute inset-0 rounded-full border-[3px] border-secondary-container border-t-secondary"></div>
+        <div class="spinner-reverse absolute inset-2 rounded-full border-[2px] border-primary-fixed/20 border-t-primary-fixed"></div>
+        <div class="absolute inset-0 flex items-center justify-center logo-pulse">
+          <img src="Logo.png" alt="Scanning Logo" class="w-14 h-14 rounded-full object-cover shadow-[0_4px_12px_rgba(0,0,0,0.15)]"/>
+        </div>
+      </div>
+      <div class="text-center">
+        <p class="font-title-lg text-title-lg text-primary mb-1">The Bill Mate is Scanning...</p>
+        <p class="font-body-md text-body-md text-on-surface-variant">Extracting bill details&hellip;</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Camera Modal ── -->
+  <div id="camera-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-on-surface/70 backdrop-blur-md" onclick="closeCameraModal()"></div>
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container">
+        <p class="font-title-lg text-title-lg text-primary">Camera</p>
+        <button onclick="closeCameraModal()" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+      <div class="relative bg-black">
+        <video id="camera-video" autoplay playsinline class="w-full"></video>
+        <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div class="w-56 h-72 border-2 border-secondary rounded-xl opacity-70 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]"></div>
+        </div>
+      </div>
+      <div class="flex items-center justify-center gap-4 px-6 py-5 bg-surface-container-low">
+        <button id="btn-capture" onclick="capturePhoto()" class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-lg hover:opacity-90 active:scale-95 transition-transform">
+          <span class="material-symbols-outlined text-3xl icon-fill">camera</span>
+        </button>
+      </div>
+    </div>
+    <canvas id="camera-canvas" class="hidden"></canvas>
+  </div>
+
+  <!-- ── Edit Bill Modal ── -->
+  <div id="edit-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeEditModal()"></div>
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container shrink-0">
+        <div>
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-0.5">Editing Bill</p>
+          <p class="font-title-lg text-title-lg text-primary">Edit Bill Details</p>
+        </div>
+        <button onclick="closeEditModal()" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+
+        <!-- Vendor -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface-variant" for="edit-vendor">Vendor Name</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
+            <input id="edit-vendor" type="text" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface-variant" for="edit-date">Bill Date</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">calendar_today</span>
+            <input id="edit-date" type="date" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+        </div>
+
+        <!-- Line Items -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
+            <button onclick="addEditItem()" class="inline-flex items-center gap-1 text-secondary font-label-sm text-label-sm hover:underline transition-colors">
+              <span class="material-symbols-outlined text-[16px]">add</span>
+              Add Item
+            </button>
+          </div>
+          <div id="edit-items-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Tax & Total -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="edit-tax">Tax (₹)</label>
+            <input id="edit-tax" type="number" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="edit-total">Total (₹)</label>
+            <input id="edit-total" type="number" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-surface-container shrink-0">
+        <!-- Delete button on the left -->
+        <button
+          id="edit-delete-btn"
+          onclick="openDeleteConfirm()"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-error/40 text-error font-label-md text-label-md hover:bg-error/10 transition-colors"
+          title="Delete this bill permanently"
+        >
+          <span class="material-symbols-outlined text-[16px]">delete</span>
+          Delete
+        </button>
+
+        <!-- Cancel / Save on the right -->
+        <div class="flex items-center gap-3">
+          <button onclick="closeEditModal()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+            Cancel
+          </button>
+          <button id="edit-save-btn" onclick="saveEditedBill()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
+            <span class="material-symbols-outlined text-[16px]">save</span>
+            Save Changes
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Delete Confirmation Modal ── -->
+  <div id="delete-confirm-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeDeleteConfirm()"></div>
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.25)] w-full max-w-sm mx-4 overflow-hidden">
+      <!-- Header -->
+      <div class="flex items-center gap-3 px-6 pt-6 pb-4">
+        <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center shrink-0">
+          <span class="material-symbols-outlined text-error text-[20px] icon-fill">delete_forever</span>
+        </div>
+        <div>
+          <p class="font-title-lg text-title-lg text-primary">Delete Bill?</p>
+          <p class="font-body-md text-body-md text-on-surface-variant text-sm mt-0.5">This action cannot be undone.</p>
+        </div>
+      </div>
+      <!-- Body -->
+      <div class="px-6 pb-4">
+        <p class="font-body-md text-body-md text-on-surface-variant">
+          Are you sure you want to permanently delete this bill? All data including line items will be removed.
+        </p>
+      </div>
+      <!-- Footer -->
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-container">
+        <button onclick="closeDeleteConfirm()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+          Cancel
+        </button>
+        <button
+          id="confirm-delete-btn"
+          onclick="deleteBill()"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:opacity-90 transition-opacity"
+        >
+          <span class="material-symbols-outlined text-[16px]">delete_forever</span>
+          Delete Bill
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Error Toast ── -->
+  <div id="error-toast" class="hidden fixed bottom-6 right-6 z-[99999] flex items-start gap-3 bg-on-surface text-inverse-on-surface px-5 py-4 rounded-xl shadow-2xl max-w-sm" role="alert">
+    <span class="material-symbols-outlined text-error shrink-0 mt-0.5">error</span>
+    <div>
+      <p class="font-label-md text-label-md text-inverse-on-surface font-semibold mb-0.5">Something went wrong</p>
+      <p id="error-toast-message" class="font-body-md text-body-md text-inverse-on-surface/80 text-sm"></p>
+    </div>
+    <button onclick="hideToast()" class="text-inverse-on-surface/60 hover:text-inverse-on-surface transition-colors ml-2 shrink-0">
+      <span class="material-symbols-outlined text-sm">close</span>
+    </button>
+  </div>
+
+  <script>
+    // ── State ─────────────────────────────────────────────────────────────
+    let cameraStream = null;
+    let toastTimer   = null;
+
+    // ── Processing modal ──────────────────────────────────────────────────
+    function showProcessing() {
+      document.getElementById('processing-modal').classList.remove('hidden');
+    }
+    function hideProcessing() {
+      document.getElementById('processing-modal').classList.add('hidden');
+    }
+
+    // ── Error toast ───────────────────────────────────────────────────────
+    function showError(message) {
+      document.getElementById('error-toast-message').textContent = message;
+      document.getElementById('error-toast').classList.remove('hidden');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(hideToast, 7000);
+    }
+    function hideToast() {
+      document.getElementById('error-toast').classList.add('hidden');
+    }
+
+    // ── Camera ────────────────────────────────────────────────────────────
+    async function openCameraModal() {
+      try {
+        cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+        document.getElementById('camera-video').srcObject = cameraStream;
+        document.getElementById('camera-modal').classList.remove('hidden');
+      } catch (err) {
+        showError('Could not access camera. Please grant camera permissions and try again.');
+      }
+    }
+
+    function closeCameraModal() {
+      document.getElementById('camera-modal').classList.add('hidden');
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(t => t.stop());
+        cameraStream = null;
+      }
+      document.getElementById('camera-video').srcObject = null;
+    }
+
+    function capturePhoto() {
+      const video  = document.getElementById('camera-video');
+      const canvas = document.getElementById('camera-canvas');
+
+      if (!video.videoWidth || !video.videoHeight) {
+        showError('Camera stream not ready yet. Please wait a moment and try again.');
+        return;
+      }
+
+      canvas.width  = video.videoWidth;
+      canvas.height = video.videoHeight;
+      canvas.getContext('2d').drawImage(video, 0, 0);
+      closeCameraModal();
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) { showError('Failed to capture image from camera.'); return; }
+        await submitBillImage(new File([blob], 'camera-capture.jpg', { type: 'image/jpeg' }));
+      }, 'image/jpeg', 0.92);
+    }
+
+    // ── File upload ───────────────────────────────────────────────────────
+    async function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showError('Please select a valid image file (JPG, PNG, WEBP, etc.).');
+        event.target.value = '';
+        return;
+      }
+
+      await submitBillImage(file);
+      event.target.value = '';
+    }
+
+    // ── Submit image to backend ───────────────────────────────────────────
+    async function submitBillImage(file) {
+      showProcessing();
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch("http://127.0.0.1:8000/upload-bill", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          let detail = `Server error (${response.status})`;
+          try {
+            const err = await response.json();
+            if (err.detail) detail = typeof err.detail === 'string' ? err.detail : err.detail.error;
+          } catch (_) {}
+          throw new Error(detail);
+        }
+
+        const billData = await response.json();
+        hideProcessing();
+
+        if (billData.error) {
+          showError(billData.error + (billData.raw_output ? ": " + billData.raw_output : ""));
+          return;
+        }
+
+        renderResult(billData);
+
+      } catch (err) {
+        hideProcessing();
+        showError(err.message || 'An unexpected error occurred while scanning the bill.');
+      }
+    }
+
+    // ── Render result card ────────────────────────────────────────────────
+    function renderResult(bill) {
+      document.getElementById('result-vendor').textContent = bill.vendor_name || 'Unknown Vendor';
+      document.getElementById('result-date').textContent   = bill.date        || 'N/A';
+
+      const tbody = document.getElementById('result-items');
+      tbody.innerHTML = '';
+
+      const items = Array.isArray(bill.items) ? bill.items : [];
+      if (items.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="3" class="px-5 py-4 text-center text-on-surface-variant font-body-md text-body-md">
+              No line items detected.
+            </td>
+          </tr>`;
+      } else {
+        items.forEach((item, idx) => {
+          const row = document.createElement('tr');
+          row.className = idx % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container-low';
+          row.innerHTML = `
+            <td class="px-5 py-3 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
+            <td class="px-5 py-3 font-body-md text-body-md text-on-surface-variant text-center">${item.quantity ?? 1}</td>
+            <td class="px-5 py-3 font-label-md text-label-md text-on-surface text-right">${formatCurrency(item.price)}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      document.getElementById('result-tax').textContent   = formatCurrency(bill.tax          ?? 0);
+      document.getElementById('result-total').textContent = formatCurrency(bill.total_amount ?? 0);
+
+      const section = document.getElementById('result-section');
+      section.classList.remove('hidden');
+
+      const card = document.getElementById('result-card');
+      card.classList.remove('animate-result');
+      void card.offsetWidth;
+      card.classList.add('animate-result');
+
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      loadBillHistory();
+    }
+
+    // ── Load bill history ─────────────────────────────────────────────────
+    async function loadBillHistory() {
+      const container  = document.getElementById('history-list');
+      const emptyState = document.getElementById('history-empty-state');
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/bills');
+
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+        const bills = await response.json();
+
+        // Clear existing cards (keep empty state el)
+        Array.from(container.children).forEach(child => {
+          if (child.id !== 'history-empty-state') child.remove();
+        });
+
+        if (!Array.isArray(bills) || bills.length === 0) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+
+        // Backend already returns newest-first — no reverse needed
+        bills.forEach((bill, idx) => {
+          container.insertBefore(buildHistoryCard(bill, idx), emptyState);
+        });
+
+      } catch (err) {
+        console.error('Failed to load bill history:', err);
+      }
+    }
+
+    // ── Build history card ────────────────────────────────────────────────
+    function buildHistoryCard(bill, idx) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'animate-result bg-surface-container-lowest rounded-xl border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)] overflow-hidden';
+      wrapper.style.animationDelay = `${idx * 60}ms`;
+
+      const itemCount = Array.isArray(bill.items) ? bill.items.length : 0;
+      // bill_date is used when saved via PATCH, date comes directly from OCR
+      const displayDate = bill.bill_date || bill.date || 'No date';
+      const scannedAt   = bill.created_at ? new Date(bill.created_at).toLocaleString() : '';
+
+      wrapper.innerHTML = `
+        <details class="group">
+          <summary class="flex items-center justify-between px-6 py-4 cursor-pointer list-none select-none hover:bg-surface-container transition-colors">
+            <div class="flex items-center gap-4">
+              <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-lg icon-fill">receipt</span>
+              </div>
+              <div>
+                <p class="font-title-lg text-title-lg text-primary leading-tight">${escapeHtml(bill.vendor_name || 'Unknown')}</p>
+                <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
+                  ${displayDate} · ${itemCount} item${itemCount !== 1 ? 's' : ''}
+                  ${scannedAt ? `· Scanned ${scannedAt}` : ''}
+                </p>
+              </div>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-title-lg text-title-lg text-secondary">${formatCurrency(bill.total_amount ?? 0)}</span>
+              <button
+                onclick="event.preventDefault(); event.stopPropagation(); openEditModal(${JSON.stringify(bill).replace(/"/g, '&quot;')})"
+                class="inline-flex items-center gap-1 text-on-surface-variant hover:text-secondary border border-outline-variant hover:border-secondary/40 px-2.5 py-1.5 rounded-lg transition-colors font-label-sm text-label-sm bg-surface-container-lowest"
+                title="Edit bill"
+              >
+                <span class="material-symbols-outlined text-[16px]">edit</span>
+                Edit
+              </button>
+              <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200">expand_more</span>
+            </div>
+          </summary>
+          <div class="border-t border-surface-container px-6 py-4">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="text-on-surface-variant">
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2">Item</th>
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-center">Qty</th>
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-right">Price</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-surface-container">
+                ${(bill.items || []).map(item => `
+                  <tr>
+                    <td class="py-2 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
+                    <td class="py-2 text-center text-on-surface-variant">${item.quantity ?? 1}</td>
+                    <td class="py-2 text-right font-label-md text-label-md text-on-surface">${formatCurrency(item.price)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+              <tfoot class="border-t border-outline-variant">
+                <tr class="text-on-surface-variant">
+                  <td colspan="2" class="pt-3 font-label-md text-label-md">Tax</td>
+                  <td class="pt-3 text-right font-label-md text-label-md">${formatCurrency(bill.tax ?? 0)}</td>
+                </tr>
+                <tr class="text-primary font-semibold">
+                  <td colspan="2" class="pt-1 font-title-lg text-title-lg">Total</td>
+                  <td class="pt-1 text-right font-title-lg text-title-lg text-secondary">${formatCurrency(bill.total_amount ?? 0)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </details>
+      `;
+      return wrapper;
+    }
+
+    // ── Edit Modal ────────────────────────────────────────────────────────
+    let currentEditBillId = null;
+
+    function openEditModal(bill) {
+      currentEditBillId = bill.id;
+
+      // Populate fields
+      document.getElementById('edit-vendor').value = bill.vendor_name || '';
+      document.getElementById('edit-date').value   = bill.bill_date   || bill.date || '';
+      document.getElementById('edit-tax').value    = bill.tax         || 0;
+      document.getElementById('edit-total').value  = bill.total_amount || 0;
+
+      // Populate items
+      const list = document.getElementById('edit-items-list');
+      list.innerHTML = '';
+      (bill.items || []).forEach(item => addEditItem(item));
+
+      document.getElementById('edit-modal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').classList.add('hidden');
+      currentEditBillId = null;
+    }
+
+    function addEditItem(item = {}) {
+      const list = document.getElementById('edit-items-list');
+      const idx  = list.children.length;
+      const row  = document.createElement('div');
+      row.className = 'flex gap-2 items-center';
+      row.innerHTML = `
+        <input
+          type="text"
+          placeholder="Item name"
+          value="${escapeHtml(item.item_name || '')}"
+          data-field="item_name"
+          class="flex-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all"
+        />
+        <input
+          type="number"
+          placeholder="Qty"
+          value="${item.quantity ?? 1}"
+          data-field="quantity"
+          min="1"
+          class="w-16 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-center"
+        />
+        <input
+          type="number"
+          placeholder="Price"
+          value="${item.price ?? 0}"
+          data-field="price"
+          min="0"
+          step="0.01"
+          class="w-24 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-right"
+        />
+        <button
+          onclick="this.parentElement.remove()"
+          class="text-outline hover:text-error transition-colors shrink-0"
+          title="Remove item"
+        >
+          <span class="material-symbols-outlined text-[18px]">delete</span>
+        </button>
+      `;
+      list.appendChild(row);
+    }
+
+    async function saveEditedBill() {
+      if (!currentEditBillId) return;
+
+      const btn = document.getElementById('edit-save-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Saving…';
+      btn.disabled = true;
+
+      // Collect items from the list
+      const itemRows = document.getElementById('edit-items-list').children;
+      const items = Array.from(itemRows).map(row => ({
+        item_name: row.querySelector('[data-field="item_name"]').value.trim(),
+        quantity:  parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
+        price:     parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+      }));
+
+      const payload = {
+        vendor_name:  document.getElementById('edit-vendor').value.trim(),
+        bill_date:    document.getElementById('edit-date').value,
+        items,
+        tax:          parseFloat(document.getElementById('edit-tax').value)   || 0,
+        total_amount: parseFloat(document.getElementById('edit-total').value) || 0,
+      };
+
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/bills/${currentEditBillId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.detail || `Server error (${response.status})`);
+        }
+
+        closeEditModal();
+        await loadBillHistory();
+
+      } catch (err) {
+        showError(err.message || 'Could not save changes. Please try again.');
+        btn.innerHTML = originalHTML;
+        btn.disabled  = false;
+      }
+    }
+
+    // ── Delete Bill ───────────────────────────────────────────────────────
+    function openDeleteConfirm() {
+      document.getElementById('delete-confirm-modal').classList.remove('hidden');
+    }
+
+    function closeDeleteConfirm() {
+      document.getElementById('delete-confirm-modal').classList.add('hidden');
+    }
+
+    async function deleteBill() {
+      if (!currentEditBillId) return;
+
+      const btn = document.getElementById('confirm-delete-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Deleting…';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/bills/${currentEditBillId}`, {
+          method: 'DELETE'
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.detail || `Server error (${response.status})`);
+        }
+
+        closeDeleteConfirm();
+        closeEditModal();
+        await loadBillHistory();
+
+      } catch (err) {
+        showError(err.message || 'Could not delete bill. Please try again.');
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        closeDeleteConfirm();
+      }
+    }
+
+    // ── Reset UI ──────────────────────────────────────────────────────────
+    function resetUI() {
+      document.getElementById('result-section').classList.add('hidden');
+      document.getElementById('scan-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Utilities ─────────────────────────────────────────────────────────
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-IN', {
+        style: 'currency', currency: 'INR',
+        minimumFractionDigits: 2, maximumFractionDigits: 2
+      }).format(parseFloat(amount) || 0);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = String(text);
+      return div.innerHTML;
+    }
+
+    async function checkBackend() {
+      try {
+        const res  = await fetch("http://127.0.0.1:8000/health");
+        const data = await res.json();
+        console.log("Backend status:", data.status);
+      } catch {
+        console.warn("Backend unreachable — is main.py running?");
+      }
+    }
+
+    // ── Bootstrap ─────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadBillHistory();
+      checkBackend();
+    });
+  </script>
+</body>
+</html>
