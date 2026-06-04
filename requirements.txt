@@ -3,4 +3,5 @@ uvicorn[standard]
 python-multipart
 python-dotenv
 jinja2
-sambanova
+sambanova==1.8.2
+
