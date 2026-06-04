@@ -1,0 +1,26 @@
+# ─────────────────────────────────────────────────────────
+# render.yaml — Infrastructure-as-code for Render.com
+# ─────────────────────────────────────────────────────────
+# Deploy steps:
+#   1. Push this repo to GitHub
+#   2. Go to https://dashboard.render.com → New → Web Service
+#   3. Connect your GitHub repo
+#   4. Render auto-detects render.yaml
+#   5. Set SAMBANOVA_API_KEY and MONGO_URI in the Render dashboard
+#      (Environment tab → Secret Files or Environment Variables)
+# ─────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: bill-mate
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    plan: free
+    envVars:
+      - key: SAMBANOVA_API_KEY
+        sync: false   # Set this manually in the Render dashboard (never commit secrets)
+      - key: SAMBANOVA_BASE_URL
+        value: https://api.sambanova.ai/v1
+      - key: MONGO_URI
+        sync: false   # Set this manually in the Render dashboard

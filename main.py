@@ -4,6 +4,8 @@ from fastapi.responses import HTMLResponse, FileResponse
 
 from sambanova import SambaNova
 from dotenv import load_dotenv
+from motor.motor_asyncio import AsyncIOMotorClient
+from pymongo import DESCENDING
 
 import os
 import base64
@@ -11,6 +13,7 @@ import json
 import re
 import uuid
 from datetime import datetime, timezone
+from contextlib import asynccontextmanager
 
 # ─────────────────────────────
 load_dotenv()   # reads .env into os.environ
@@ -18,13 +21,14 @@ load_dotenv()   # reads .env into os.environ
 # ─────────────────────────────
 # Config
 # ─────────────────────────────
-SAMBANOVA_API_KEY = os.environ.get("SAMBANOVA_API_KEY")
+SAMBANOVA_API_KEY  = os.environ.get("SAMBANOVA_API_KEY")
 SAMBANOVA_BASE_URL = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1")
+MONGO_URI          = os.environ.get("MONGO_URI", "")
 
 # ─────────────────────────────
 # SambaNova client
 # ─────────────────────────────
-client = SambaNova(
+client_samba = SambaNova(
     api_key=SAMBANOVA_API_KEY,
     base_url=SAMBANOVA_BASE_URL,
 )
@@ -45,51 +49,51 @@ ALLOWED_MIME_TYPES = {
 MAX_FILE_SIZE_MB = 10
 
 # ─────────────────────────────
-# Local JSON file storage
+# MongoDB — module-level refs filled in lifespan
 # ─────────────────────────────
-BILLS_JSON_PATH = os.path.join(os.path.dirname(__file__), "data", "bills.json")
+mongo_client: AsyncIOMotorClient | None = None
+bills_collection = None
 
-def load_bills() -> list:
-    """Load all bills from bills.json. Returns [] if missing or corrupt."""
-    try:
-        if os.path.exists(BILLS_JSON_PATH):
-            with open(BILLS_JSON_PATH, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                return data if isinstance(data, list) else []
-    except Exception as e:
-        print(f"[WARN] Could not read bills.json: {e}")
-    return []
 
-def save_bills(bills: list):
-    """Overwrite bills.json with the provided list."""
-    try:
-        os.makedirs(os.path.dirname(BILLS_JSON_PATH), exist_ok=True)
-        with open(BILLS_JSON_PATH, "w", encoding="utf-8") as f:
-            json.dump(bills, f, indent=2, ensure_ascii=False)
-    except Exception as e:
-        print(f"[ERROR] Could not write bills.json: {e}")
-        raise
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Connect to MongoDB Atlas on startup; disconnect on shutdown."""
+    global mongo_client, bills_collection
 
-def append_bill(bill: dict):
-    """Add a single bill to bills.json."""
-    bills = load_bills()
-    bills.append(bill)
-    save_bills(bills)
+    if not MONGO_URI:
+        raise RuntimeError(
+            "MONGO_URI environment variable is not set. "
+            "Add it to your .env file or cloud environment."
+        )
 
-def update_bill(bill_id: str, updates: dict):
-    """Update an existing bill by id in bills.json. Returns the updated bill or None."""
-    bills = load_bills()
-    for i, b in enumerate(bills):
-        if str(b.get("id")) == str(bill_id):
-            bills[i] = {**b, **updates}
-            save_bills(bills)
-            return bills[i]
-    return None
+    mongo_client = AsyncIOMotorClient(MONGO_URI)
+    db = mongo_client["billmate"]
+    bills_collection = db["bills"]
+
+    # Ensure index on created_at for efficient sorting
+    await bills_collection.create_index([("created_at", DESCENDING)])
+
+    print("[INFO] Connected to MongoDB Atlas ✓")
+    yield
+
+    mongo_client.close()
+    print("[INFO] MongoDB connection closed.")
+
+
+# ─────────────────────────────
+# Helper: serialize a MongoDB document to a JSON-safe dict
+# ─────────────────────────────
+def serialize_bill(doc: dict) -> dict:
+    """Convert a MongoDB document to a plain dict with string 'id'."""
+    doc = dict(doc)
+    doc["id"] = str(doc.pop("_id"))
+    return doc
+
 
 # ─────────────────────────────
 # FastAPI app
 # ─────────────────────────────
-app = FastAPI(title="Bill Mate API", version="2.0.0")
+app = FastAPI(title="Bill Mate API", version="3.0.0", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
@@ -98,6 +102,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 # ─────────────────────────────
 # Helper: robust JSON extraction
@@ -122,6 +127,7 @@ def extract_json(raw: str) -> dict:
 
     raise ValueError(f"No valid JSON found in model response: {raw[:200]}")
 
+
 # ─────────────────────────────
 # Pages
 # ─────────────────────────────
@@ -145,23 +151,29 @@ def get_logo():
 # Health check
 # ─────────────────────────────
 @app.get("/health")
-def health():
-    return {"status": "ok"}
+async def health():
+    """Check API + database connectivity."""
+    try:
+        await mongo_client.admin.command("ping")
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {e}"
+    return {"status": "ok", "database": db_status}
 
 
 # ─────────────────────────────
-# GET /bills  — read from JSON file
+# GET /bills  — read from MongoDB
 # ─────────────────────────────
 @app.get("/bills")
-def get_bills():
-    """Return all bills from bills.json, newest first."""
-    bills = load_bills()
-    bills_sorted = sorted(bills, key=lambda b: b.get("created_at", ""), reverse=True)
-    return bills_sorted
+async def get_bills():
+    """Return all bills from MongoDB Atlas, newest first."""
+    cursor = bills_collection.find().sort("created_at", DESCENDING)
+    bills = [serialize_bill(doc) async for doc in cursor]
+    return bills
 
 
 # ─────────────────────────────
-# PATCH /bills/{bill_id}  — update in JSON file
+# PATCH /bills/{bill_id}  — update in MongoDB
 # ─────────────────────────────
 @app.patch("/bills/{bill_id}")
 async def patch_bill(bill_id: str, request: Request):
@@ -178,15 +190,20 @@ async def patch_bill(bill_id: str, request: Request):
         "total_amount": body.get("total_amount") or 0,
     }
 
-    updated = update_bill(bill_id, updates)
-    if updated is None:
+    result = await bills_collection.find_one_and_update(
+        {"_id": bill_id},
+        {"$set": updates},
+        return_document=True,
+    )
+
+    if result is None:
         raise HTTPException(status_code=404, detail=f"Bill '{bill_id}' not found.")
 
-    return {"success": True, "updated": updated}
+    return {"success": True, "updated": serialize_bill(result)}
 
 
 # ─────────────────────────────
-# POST /upload-bill  — OCR + save to JSON
+# POST /upload-bill  — OCR + save to MongoDB
 # ─────────────────────────────
 @app.post("/upload-bill")
 async def upload_bill(file: UploadFile = File(...)):
@@ -240,7 +257,7 @@ Rules:
 
     # 5. Call SambaNova
     try:
-        response = client.chat.completions.create(
+        response = client_samba.chat.completions.create(
             model=MODEL,
             messages=[
                 {
@@ -275,9 +292,10 @@ Rules:
             }
         )
 
-    # 7. Save to bills.json
+    # 7. Save to MongoDB Atlas
+    bill_id = str(uuid.uuid4())
     new_bill = {
-        "id":           str(uuid.uuid4()),
+        "_id":          bill_id,
         "vendor_name":  bill_data.get("vendor_name"),
         "bill_date":    bill_data.get("date"),
         "items":        bill_data.get("items") or [],
@@ -285,20 +303,18 @@ Rules:
         "total_amount": bill_data.get("total_amount") or 0,
         "created_at":   datetime.now(timezone.utc).isoformat(),
     }
-    append_bill(new_bill)
+    await bills_collection.insert_one(new_bill)
 
     # 8. Return extracted data (with the generated id so the frontend can reference it)
-    return {**bill_data, "id": new_bill["id"]}
+    return {**bill_data, "id": bill_id}
 
 
 # ─────────────────────────────
 # DELETE /bills/{bill_id}
 # ─────────────────────────────
 @app.delete("/bills/{bill_id}")
-def delete_bill(bill_id: str):
-    bills = load_bills()
-    new_bills = [b for b in bills if str(b.get("id")) != str(bill_id)]
-    if len(new_bills) == len(bills):
+async def delete_bill(bill_id: str):
+    result = await bills_collection.delete_one({"_id": bill_id})
+    if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail=f"Bill '{bill_id}' not found.")
-    save_bills(new_bills)
     return {"success": True}
