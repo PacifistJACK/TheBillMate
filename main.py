@@ -251,7 +251,7 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 Rules:
 - Return ONLY the JSON object above
 - Use null for any field you cannot find
-- date format: YYYY-MM-DD if possible
+- date format: DD-MM-YYYY if possible
 - price and total_amount must be numbers, not strings
 """
 
