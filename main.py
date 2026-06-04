@@ -1,7 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.templating import Jinja2Templates
 
 from sambanova import SambaNova
 from dotenv import load_dotenv
@@ -92,8 +91,6 @@ def update_bill(bill_id: str, updates: dict):
 # ─────────────────────────────
 app = FastAPI(title="Bill Mate API", version="2.0.0")
 
-templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "templates"))
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -129,9 +126,10 @@ def extract_json(raw: str) -> dict:
 # Pages
 # ─────────────────────────────
 @app.get("/", response_class=HTMLResponse)
-def root(request: Request):
-    """Serve the main dashboard directly — no login required."""
-    return templates.TemplateResponse("index.html", {"request": request})
+def root():
+    """Serve the main dashboard directly."""
+    html_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
+    return FileResponse(html_path)
 
 
 @app.get("/Logo.png")
