@@ -1,5 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-multipart
-flask
 python-dotenv
+jinja2
+sambanova

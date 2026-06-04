@@ -20,13 +20,14 @@ load_dotenv()   # reads .env into os.environ
 # Config
 # ─────────────────────────────
 SAMBANOVA_API_KEY = os.environ.get("SAMBANOVA_API_KEY")
+SAMBANOVA_BASE_URL = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1")
 
 # ─────────────────────────────
 # SambaNova client
 # ─────────────────────────────
 client = SambaNova(
     api_key=SAMBANOVA_API_KEY,
-    base_url="https://api.sambanova.ai/v1",
+    base_url=SAMBANOVA_BASE_URL,
 )
 
 MODEL = "gemma-3-12b-it"
