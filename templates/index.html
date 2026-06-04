@@ -705,7 +705,7 @@
       formData.append('file', file);
 
       try {
-        const response = await fetch("http://127.0.0.1:8000/upload-bill", {
+        const response = await fetch("/upload-bill", {
           method: "POST",
           body: formData
         });
@@ -785,7 +785,7 @@
       const emptyState = document.getElementById('history-empty-state');
 
       try {
-        const response = await fetch('http://127.0.0.1:8000/bills');
+        const response = await fetch('/bills');
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -978,7 +978,7 @@
       };
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/bills/${currentEditBillId}`, {
+        const response = await fetch(`/bills/${currentEditBillId}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
@@ -1017,7 +1017,7 @@
       btn.disabled = true;
 
       try {
-        const response = await fetch(`http://127.0.0.1:8000/bills/${currentEditBillId}`, {
+        const response = await fetch(`/bills/${currentEditBillId}`, {
           method: 'DELETE'
         });
 
@@ -1060,7 +1060,7 @@
 
     async function checkBackend() {
       try {
-        const res  = await fetch("http://127.0.0.1:8000/health");
+        const res  = await fetch("/health");
         const data = await res.json();
         console.log("Backend status:", data.status);
       } catch {
