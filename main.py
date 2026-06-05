@@ -206,6 +206,32 @@ async def get_bills():
 
 
 # ─────────────────────────────
+# POST /bills  — manually create a bill
+# ─────────────────────────────
+@app.post("/bills")
+async def create_bill(request: Request):
+    """Save a manually entered bill directly to MongoDB Atlas."""
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON body.")
+
+    bill_id  = str(uuid.uuid4())
+    new_bill = {
+        "_id":          bill_id,
+        "vendor_name":  body.get("vendor_name") or None,
+        "bill_date":    body.get("bill_date")   or None,
+        "items":        body.get("items")        or [],
+        "tax":          body.get("tax")          or 0,
+        "total_amount": body.get("total_amount") or 0,
+        "created_at":   datetime.now(timezone.utc).isoformat(),
+        "source":       "manual",
+    }
+    await bills_collection.insert_one(new_bill)
+    return {"success": True, "id": bill_id, **{k: v for k, v in new_bill.items() if k != "_id"}}
+
+
+# ─────────────────────────────
 # PATCH /bills/{bill_id}  — update in MongoDB
 # ─────────────────────────────
 @app.patch("/bills/{bill_id}")
@@ -274,7 +300,8 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
     {
       "item_name": "",
       "quantity": 1,
-      "price": 0
+      "price": 0,
+      "description": ""
     }
   ],
   "tax": 0,
@@ -282,10 +309,12 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 }
 
 Rules:
+- carefully go through whole image of bill and extract data, sgst and cgst are tex type in india 
 - Return ONLY the JSON object above
 - Use null for any field you cannot find
 - date format: DD-MM-YYYY if possible
 - price and total_amount must be numbers, not strings
+- description: capture any special item notes printed on the bill such as warranty period, serial number, model number, SKU, expiry date, or any other item-specific annotation. Leave as empty string if none.
 """
 
     # 5. Call SambaNova

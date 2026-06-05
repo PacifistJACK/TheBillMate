@@ -206,7 +206,7 @@
         No more manual entry — just pure organisation.
       </p>
 
-      <div id="scan-section" class="grid grid-cols-1 md:grid-cols-2 gap-gutter w-full max-w-3xl">
+      <div id="scan-section" class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full max-w-4xl">
         <button
           id="btn-camera"
           onclick="openCameraModal()"
@@ -232,6 +232,19 @@
           <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload Image</div>
           <div class="font-body-md text-body-md text-on-surface-variant text-center">Select a file from your gallery</div>
         </label>
+
+        <button
+          id="btn-add-manual"
+          onclick="openAddModal()"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer"
+        >
+          <div class="absolute inset-0 bg-tertiary-container/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
+          <div class="w-16 h-16 rounded-full bg-surface-container text-on-surface flex items-center justify-center mb-2 border border-outline-variant">
+            <span class="material-symbols-outlined text-3xl">edit_note</span>
+          </div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Add Manually</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Type in bill details by hand</div>
+        </button>
 
         <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)"/>
       </div>
@@ -354,6 +367,7 @@
               <thead class="bg-surface-container">
                 <tr>
                   <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Item</th>
+                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider hidden md:table-cell">Description</th>
                   <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-center">Qty</th>
                   <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Price</th>
                 </tr>
@@ -449,6 +463,96 @@
     </div>
   </footer>
 
+  <!-- ── Add Bill Manually Modal ── -->
+  <div id="add-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true" role="dialog">
+    <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeAddModal()"></div>
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container shrink-0">
+        <div>
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-0.5">New Bill</p>
+          <p class="font-title-lg text-title-lg text-primary">Add Bill Manually</p>
+        </div>
+        <button onclick="closeAddModal()" class="text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+
+        <!-- Vendor -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface-variant" for="add-vendor">Vendor / Shop Name</label>
+          <div class="relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
+            <input id="add-vendor" type="text" placeholder="e.g. Reliance Fresh" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="space-y-1.5">
+          <label class="font-label-md text-label-md text-on-surface-variant" for="add-date">Bill Date</label>
+          <div class="relative">
+            <button
+              type="button"
+              onclick="document.getElementById('add-date-picker').showPicker ? document.getElementById('add-date-picker').showPicker() : document.getElementById('add-date-picker').click()"
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors"
+            >
+              <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+            </button>
+            <input id="add-date" type="text" placeholder="DD-MM-YYYY"
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <input id="add-date-picker" type="date"
+              onchange="document.getElementById('add-date').value = toDDMMYYYY(this.value)"
+              class="sr-only"/>
+          </div>
+        </div>
+
+        <!-- Line Items -->
+        <div class="space-y-2">
+          <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
+          <div id="add-items-list" class="space-y-2"></div>
+          <button
+            onclick="addNewItem()"
+            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm"
+          >
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            Add another item
+          </button>
+        </div>
+
+        <!-- Tax & Total -->
+        <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="add-tax">Tax (₹)</label>
+            <input id="add-tax" type="number" min="0" step="0.01" placeholder="0.00"
+              oninput="recalcAddTotal()"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+          </div>
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="add-total">Total (₹)</label>
+            <input id="add-total" type="number" min="0" step="0.01" placeholder="auto-calculated"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all text-secondary font-semibold"/>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-container shrink-0">
+        <button onclick="closeAddModal()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+          Cancel
+        </button>
+        <button id="add-save-btn" onclick="saveNewBill()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
+          <span class="material-symbols-outlined text-[16px]">save</span>
+          Save Bill
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ── Processing Modal ── -->
   <div id="processing-modal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center" aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"></div>
@@ -524,21 +628,32 @@
         <div class="space-y-1.5">
           <label class="font-label-md text-label-md text-on-surface-variant" for="edit-date">Bill Date</label>
           <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">calendar_today</span>
-            <input id="edit-date" type="date" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <button
+              type="button"
+              onclick="document.getElementById('edit-date-picker').showPicker ? document.getElementById('edit-date-picker').showPicker() : document.getElementById('edit-date-picker').click()"
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors"
+            >
+              <span class="material-symbols-outlined text-[18px]">calendar_today</span>
+            </button>
+            <input id="edit-date" type="text" placeholder="DD-MM-YYYY"
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <input id="edit-date-picker" type="date"
+              onchange="document.getElementById('edit-date').value = toDDMMYYYY(this.value)"
+              class="sr-only"/>
           </div>
         </div>
 
         <!-- Line Items -->
         <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
-            <button onclick="addEditItem()" class="inline-flex items-center gap-1 text-secondary font-label-sm text-label-sm hover:underline transition-colors">
-              <span class="material-symbols-outlined text-[16px]">add</span>
-              Add Item
-            </button>
-          </div>
+          <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
           <div id="edit-items-list" class="space-y-2"></div>
+          <button
+            onclick="addEditItem()"
+            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm"
+          >
+            <span class="material-symbols-outlined text-[16px]">add</span>
+            Add another item
+          </button>
         </div>
 
         <!-- Tax & Total -->
@@ -750,7 +865,7 @@
     // ── Render result card ────────────────────────────────────────────────
     function renderResult(bill) {
       document.getElementById('result-vendor').textContent = bill.vendor_name || 'Unknown Vendor';
-      document.getElementById('result-date').textContent   = bill.date        || 'N/A';
+      document.getElementById('result-date').textContent   = toDDMMYYYY(bill.date) || 'N/A';
 
       const tbody = document.getElementById('result-items');
       tbody.innerHTML = '';
@@ -767,8 +882,16 @@
         items.forEach((item, idx) => {
           const row = document.createElement('tr');
           row.className = idx % 2 === 0 ? 'bg-surface-container-lowest' : 'bg-surface-container-low';
+          const desc = item.description ? escapeHtml(item.description) : '';
           row.innerHTML = `
             <td class="px-5 py-3 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
+            <td class="px-5 py-3 font-body-md text-body-md text-on-surface-variant hidden md:table-cell">
+              ${desc
+                ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded-full text-xs font-medium">
+                    <span class="material-symbols-outlined text-[13px]">info</span>${desc}
+                  </span>`
+                : '<span class="text-outline text-xs">—</span>'}
+            </td>
             <td class="px-5 py-3 font-body-md text-body-md text-on-surface-variant text-center">${item.quantity ?? 1}</td>
             <td class="px-5 py-3 font-label-md text-label-md text-on-surface text-right">${formatCurrency(item.price)}</td>
           `;
@@ -832,8 +955,8 @@
       wrapper.style.animationDelay = `${idx * 60}ms`;
 
       const itemCount = Array.isArray(bill.items) ? bill.items.length : 0;
-      // bill_date is used when saved via PATCH, date comes directly from OCR
-      const displayDate = bill.bill_date || bill.date || 'No date';
+      // bill_date is used when saved via PATCH/POST, date comes directly from OCR
+      const displayDate = toDDMMYYYY(bill.bill_date || bill.date) || 'No date';
       const scannedAt   = bill.created_at ? new Date(bill.created_at).toLocaleString() : '';
 
       wrapper.innerHTML = `
@@ -869,18 +992,28 @@
               <thead>
                 <tr class="text-on-surface-variant">
                   <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2">Item</th>
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 hidden md:table-cell">Description</th>
                   <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-center">Qty</th>
                   <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-right">Price</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-surface-container">
-                ${(bill.items || []).map(item => `
+                ${(bill.items || []).map(item => {
+                  const d = item.description ? escapeHtml(item.description) : '';
+                  return `
                   <tr>
                     <td class="py-2 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
+                    <td class="py-2 hidden md:table-cell text-on-surface-variant">
+                      ${d
+                        ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded-full text-xs font-medium">
+                            <span class="material-symbols-outlined text-[13px]">info</span>${d}
+                          </span>`
+                        : '<span class="text-outline text-xs">—</span>'}
+                    </td>
                     <td class="py-2 text-center text-on-surface-variant">${item.quantity ?? 1}</td>
                     <td class="py-2 text-right font-label-md text-label-md text-on-surface">${formatCurrency(item.price)}</td>
-                  </tr>
-                `).join('')}
+                  </tr>`;
+                }).join('')}
               </tbody>
               <tfoot class="border-t border-outline-variant">
                 <tr class="text-on-surface-variant">
@@ -899,6 +1032,142 @@
       return wrapper;
     }
 
+    // ── Add Bill Manually ─────────────────────────────────────────────────
+    function openAddModal() {
+      // Reset form — generate today in local time as DD-MM-YYYY
+      const _now = new Date();
+      const _dd  = String(_now.getDate()).padStart(2, '0');
+      const _mm  = String(_now.getMonth() + 1).padStart(2, '0');
+      const _yyyy = _now.getFullYear();
+      document.getElementById('add-vendor').value = '';
+      document.getElementById('add-date').value   = `${_dd}-${_mm}-${_yyyy}`;
+      document.getElementById('add-tax').value    = '';
+      document.getElementById('add-total').value  = '';
+      const list = document.getElementById('add-items-list');
+      list.innerHTML = '';
+      addNewItem(); // start with one blank row
+      document.getElementById('add-modal').classList.remove('hidden');
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.add('hidden');
+    }
+
+    function addNewItem(item = {}) {
+      const list = document.getElementById('add-items-list');
+      const row  = document.createElement('div');
+      row.className = 'flex flex-col gap-1.5 p-3 rounded-lg border border-surface-container bg-surface-container-low';
+      row.innerHTML = `
+        <div class="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Item name"
+            value="${escapeHtml(item.item_name || '')}"
+            data-field="item_name"
+            class="flex-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm transition-all"
+          />
+          <input
+            type="number"
+            placeholder="Qty"
+            value="${item.quantity ?? 1}"
+            data-field="quantity"
+            min="1"
+            oninput="recalcAddTotal()"
+            class="w-16 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm transition-all text-center"
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value="${item.price ?? ''}"
+            data-field="price"
+            min="0"
+            step="0.01"
+            oninput="recalcAddTotal()"
+            class="w-24 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-sm transition-all text-right"
+          />
+          <button
+            onclick="this.closest('.flex.flex-col').remove(); recalcAddTotal();"
+            class="text-outline hover:text-error transition-colors shrink-0"
+            title="Remove item"
+          >
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[15px] pointer-events-none">info</span>
+          <input
+            type="text"
+            placeholder="Description (optional) — e.g. Warranty: 1 year, Serial: XYZ123"
+            value="${escapeHtml(item.description || '')}"
+            data-field="description"
+            class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-xs text-on-surface-variant transition-all placeholder:text-outline"
+          />
+        </div>
+      `;
+      list.appendChild(row);
+      // Scroll new row into view and focus the item name field
+      row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      row.querySelector('[data-field="item_name"]').focus();
+    }
+
+    function recalcAddTotal() {
+      const rows = document.getElementById('add-items-list').children;
+      let subtotal = 0;
+      Array.from(rows).forEach(row => {
+        const qty   = parseFloat(row.querySelector('[data-field="quantity"]').value) || 1;
+        const price = parseFloat(row.querySelector('[data-field="price"]').value)    || 0;
+        subtotal += qty * price;
+      });
+      const tax   = parseFloat(document.getElementById('add-tax').value) || 0;
+      document.getElementById('add-total').value = (subtotal + tax).toFixed(2);
+    }
+
+    async function saveNewBill() {
+      const btn = document.getElementById('add-save-btn');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-[16px] animate-spin">progress_activity</span> Saving…';
+      btn.disabled = true;
+
+      const itemRows = document.getElementById('add-items-list').children;
+      const items = Array.from(itemRows).map(row => ({
+        item_name:   row.querySelector('[data-field="item_name"]').value.trim(),
+        quantity:    parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
+        price:       parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+        description: row.querySelector('[data-field="description"]').value.trim() || null,
+      })).filter(i => i.item_name); // skip blank-name rows
+
+      const payload = {
+        vendor_name:  document.getElementById('add-vendor').value.trim() || null,
+        bill_date:    toDDMMYYYY(document.getElementById('add-date').value) || null,
+        items,
+        tax:          parseFloat(document.getElementById('add-tax').value)   || 0,
+        total_amount: parseFloat(document.getElementById('add-total').value) || 0,
+      };
+
+      try {
+        const response = await fetch('/bills', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          const err = await response.json().catch(() => ({}));
+          throw new Error(err.detail || `Server error (${response.status})`);
+        }
+
+        closeAddModal();
+        await loadBillHistory();
+        // Scroll to the bills section to see the new entry
+        document.getElementById('my-bills-section').scrollIntoView({ behavior: 'smooth' });
+
+      } catch (err) {
+        showError(err.message || 'Could not save bill. Please try again.');
+        btn.innerHTML = originalHTML;
+        btn.disabled  = false;
+      }
+    }
+
     // ── Edit Modal ────────────────────────────────────────────────────────
     let currentEditBillId = null;
 
@@ -907,7 +1176,7 @@
 
       // Populate fields
       document.getElementById('edit-vendor').value = bill.vendor_name || '';
-      document.getElementById('edit-date').value   = bill.bill_date   || bill.date || '';
+      document.getElementById('edit-date').value   = toDDMMYYYY(bill.bill_date || bill.date || '');
       document.getElementById('edit-tax').value    = bill.tax         || 0;
       document.getElementById('edit-total').value  = bill.total_amount || 0;
 
@@ -926,43 +1195,59 @@
 
     function addEditItem(item = {}) {
       const list = document.getElementById('edit-items-list');
-      const idx  = list.children.length;
       const row  = document.createElement('div');
-      row.className = 'flex gap-2 items-center';
+      row.className = 'flex flex-col gap-1.5 p-3 rounded-lg border border-surface-container bg-surface-container-low';
       row.innerHTML = `
-        <input
-          type="text"
-          placeholder="Item name"
-          value="${escapeHtml(item.item_name || '')}"
-          data-field="item_name"
-          class="flex-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all"
-        />
-        <input
-          type="number"
-          placeholder="Qty"
-          value="${item.quantity ?? 1}"
-          data-field="quantity"
-          min="1"
-          class="w-16 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-center"
-        />
-        <input
-          type="number"
-          placeholder="Price"
-          value="${item.price ?? 0}"
-          data-field="price"
-          min="0"
-          step="0.01"
-          class="w-24 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-right"
-        />
-        <button
-          onclick="this.parentElement.remove()"
-          class="text-outline hover:text-error transition-colors shrink-0"
-          title="Remove item"
-        >
-          <span class="material-symbols-outlined text-[18px]">delete</span>
-        </button>
+        <div class="flex gap-2 items-center">
+          <input
+            type="text"
+            placeholder="Item name"
+            value="${escapeHtml(item.item_name || '')}"
+            data-field="item_name"
+            class="flex-1 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all"
+          />
+          <input
+            type="number"
+            placeholder="Qty"
+            value="${item.quantity ?? 1}"
+            data-field="quantity"
+            min="1"
+            class="w-16 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-center"
+          />
+          <input
+            type="number"
+            placeholder="Price"
+            value="${item.price ?? 0}"
+            data-field="price"
+            min="0"
+            step="0.01"
+            class="w-24 px-3 py-2 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md text-sm transition-all text-right"
+          />
+          <button
+            onclick="this.closest('.flex.flex-col').remove()"
+            class="text-outline hover:text-error transition-colors shrink-0"
+            title="Remove item"
+          >
+            <span class="material-symbols-outlined text-[18px]">delete</span>
+          </button>
+        </div>
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-outline text-[15px] pointer-events-none">info</span>
+          <input
+            type="text"
+            placeholder="Description (optional) — e.g. Warranty: 1 year, Serial: XYZ123"
+            value="${escapeHtml(item.description || '')}"
+            data-field="description"
+            class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none text-xs text-on-surface-variant transition-all placeholder:text-outline"
+          />
+        </div>
       `;
       list.appendChild(row);
+      // Scroll new row into view and focus the item name field (skip on bulk-load)
+      if (!item.item_name) {
+        row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        row.querySelector('[data-field="item_name"]').focus();
+      }
     }
 
     async function saveEditedBill() {
@@ -976,14 +1261,15 @@
       // Collect items from the list
       const itemRows = document.getElementById('edit-items-list').children;
       const items = Array.from(itemRows).map(row => ({
-        item_name: row.querySelector('[data-field="item_name"]').value.trim(),
-        quantity:  parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
-        price:     parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+        item_name:   row.querySelector('[data-field="item_name"]').value.trim(),
+        quantity:    parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
+        price:       parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+        description: row.querySelector('[data-field="description"]').value.trim() || null,
       }));
 
       const payload = {
         vendor_name:  document.getElementById('edit-vendor').value.trim(),
-        bill_date:    document.getElementById('edit-date').value,
+        bill_date:    toDDMMYYYY(document.getElementById('edit-date').value),
         items,
         tax:          parseFloat(document.getElementById('edit-tax').value)   || 0,
         total_amount: parseFloat(document.getElementById('edit-total').value) || 0,
@@ -1091,6 +1377,33 @@
         style: 'currency', currency: 'INR',
         minimumFractionDigits: 2, maximumFractionDigits: 2
       }).format(parseFloat(amount) || 0);
+    }
+
+    /**
+     * Normalise any date string to DD-MM-YYYY for display / storage.
+     * Handles YYYY-MM-DD (browser date input), DD-MM-YYYY (already correct),
+     * and falls back to returning the original string unchanged.
+     */
+    function toDDMMYYYY(str) {
+      if (!str) return '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(str)) {
+        const [y, m, d] = str.split('-');
+        return `${d}-${m}-${y}`;
+      }
+      return str; // already DD-MM-YYYY or unknown — return as-is
+    }
+
+    /**
+     * Convert a date string (DD-MM-YYYY or YYYY-MM-DD) to YYYY-MM-DD
+     * so it can be set as the value of a <input type="date">.
+     */
+    function toInputDate(str) {
+      if (!str) return '';
+      if (/^\d{2}-\d{2}-\d{4}$/.test(str)) {
+        const [d, m, y] = str.split('-');
+        return `${y}-${m}-${d}`;
+      }
+      return str; // assume already YYYY-MM-DD
     }
 
     function escapeHtml(text) {
