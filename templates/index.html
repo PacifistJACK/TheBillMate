@@ -8,6 +8,8 @@
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
+  <link rel="icon" type="image/png" href="/Logo.png"/>
+
   <link href="https://fonts.googleapis.com" rel="preconnect"/>
   <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -400,14 +402,24 @@
             <h2 class="font-headline-lg text-headline-lg text-primary">My Bills</h2>
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
           </div>
-          <button
-            id="btn-refresh-history"
-            onclick="loadBillHistory()"
-            class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
-          >
-            <span class="material-symbols-outlined text-base">refresh</span>
-            Refresh
-          </button>
+          <div class="flex items-center gap-3">
+            <button
+              id="btn-download-json"
+              onclick="downloadBillsJSON()"
+              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
+            >
+              <span class="material-symbols-outlined text-base">download</span>
+              Download JSON
+            </button>
+            <button
+              id="btn-refresh-history"
+              onclick="loadBillHistory()"
+              class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
+            >
+              <span class="material-symbols-outlined text-base">refresh</span>
+              Refresh
+            </button>
+          </div>
         </div>
 
         <div id="history-list" class="space-y-4">
@@ -1038,6 +1050,35 @@
       }
     }
 
+    // ── Download bills as JSON ────────────────────────────────────────────
+    async function downloadBillsJSON() {
+      const btn = document.getElementById('btn-download-json');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">progress_activity</span> Downloading…';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/bills');
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const bills = await response.json();
+
+        const blob = new Blob([JSON.stringify(bills, null, 2)], { type: 'application/json' });
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href     = url;
+        a.download = `bill-history-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('Could not download bill history. Please try again.');
+      } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled  = false;
+      }
+    }
+
     // ── Reset UI ──────────────────────────────────────────────────────────
     function resetUI() {
       document.getElementById('result-section').classList.add('hidden');
@@ -1067,6 +1108,13 @@
         console.warn("Backend unreachable — is main.py running?");
       }
     }
+
+    // ── Frontend keepalive (secondary) ────────────────────────────────
+    // Pings /health every 10 min while a browser tab is open,
+    // complementing the backend self-ping as a double safety net.
+    setInterval(async () => {
+      try { await fetch('/health'); } catch (_) {}
+    }, 10 * 60 * 1000); // 10 minutes
 
     // ── Bootstrap ─────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {

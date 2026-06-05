@@ -8,10 +8,12 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import DESCENDING
 
 import os
+import asyncio
 import base64
 import json
 import re
 import uuid
+import urllib.request
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
@@ -24,6 +26,7 @@ load_dotenv()   # reads .env into os.environ
 SAMBANOVA_API_KEY  = os.environ.get("SAMBANOVA_API_KEY")
 SAMBANOVA_BASE_URL = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1")
 MONGO_URI          = os.environ.get("MONGO_URI", "")
+RENDER_EXTERNAL_URL = os.environ.get("RENDER_EXTERNAL_URL", "")  # auto-set by Render
 
 # ─────────────────────────────
 # SambaNova client
@@ -55,6 +58,25 @@ mongo_client: AsyncIOMotorClient | None = None
 bills_collection = None
 
 
+# ─────────────────────────────
+# Keepalive — prevents Render free tier from sleeping
+# ─────────────────────────────
+async def _keepalive_loop(url: str) -> None:
+    """Ping /health every 14 min so Render free tier never idles out (sleeps at 15 min)."""
+    ping_url = f"{url.rstrip('/')}/health"
+    while True:
+        await asyncio.sleep(14 * 60)  # 14 minutes
+        try:
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(
+                None,
+                lambda: urllib.request.urlopen(ping_url, timeout=10)
+            )
+            print("[INFO] Keepalive ping sent ✓")
+        except Exception as exc:
+            print(f"[WARN] Keepalive ping failed: {exc}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Connect to MongoDB Atlas on startup; disconnect on shutdown."""
@@ -74,8 +96,19 @@ async def lifespan(app: FastAPI):
     await bills_collection.create_index([("created_at", DESCENDING)])
 
     print("[INFO] Connected to MongoDB Atlas ✓")
+
+    # Start keepalive background task if running on Render
+    keepalive_task = None
+    if RENDER_EXTERNAL_URL:
+        keepalive_task = asyncio.create_task(_keepalive_loop(RENDER_EXTERNAL_URL))
+        print(f"[INFO] Keepalive task started → pinging every 14 min")
+    else:
+        print("[INFO] RENDER_EXTERNAL_URL not set — keepalive disabled (local dev mode)")
+
     yield
 
+    if keepalive_task:
+        keepalive_task.cancel()
     mongo_client.close()
     print("[INFO] MongoDB connection closed.")
 
