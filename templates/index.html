@@ -411,27 +411,27 @@
     <!-- ── My Bills ── -->
     <section id="my-bills" class="px-margin-mobile md:px-margin-desktop py-16 bg-surface-container-low">
       <div id="my-bills-section" class="max-w-container-max mx-auto">
-        <div class="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
           <div>
             <h2 class="font-headline-lg text-headline-lg text-primary">My Bills</h2>
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
           </div>
-          <div class="flex items-center gap-3">
+          <div class="flex items-center gap-2 shrink-0">
             <button
               id="btn-download-json"
               onclick="downloadBillsJSON()"
-              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-4 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
+              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
             >
               <span class="material-symbols-outlined text-base">download</span>
-              Download JSON
+              <span class="hidden sm:inline">Download JSON</span>
             </button>
             <button
               id="btn-refresh-history"
               onclick="loadBillHistory()"
-              class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-4 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
+              class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-3 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
             >
               <span class="material-symbols-outlined text-base">refresh</span>
-              Refresh
+              <span class="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -954,46 +954,55 @@
       wrapper.className = 'animate-result bg-surface-container-lowest rounded-xl border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)] overflow-hidden';
       wrapper.style.animationDelay = `${idx * 60}ms`;
 
-      const itemCount = Array.isArray(bill.items) ? bill.items.length : 0;
-      // bill_date is used when saved via PATCH/POST, date comes directly from OCR
+      const itemCount  = Array.isArray(bill.items) ? bill.items.length : 0;
       const displayDate = toDDMMYYYY(bill.bill_date || bill.date) || 'No date';
-      const scannedAt   = bill.created_at ? new Date(bill.created_at).toLocaleString() : '';
+      const isManual   = bill.source === 'manual';
 
       wrapper.innerHTML = `
         <details class="group">
-          <summary class="flex items-center justify-between px-6 py-4 cursor-pointer list-none select-none hover:bg-surface-container transition-colors">
-            <div class="flex items-center gap-4">
-              <div class="w-10 h-10 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
-                <span class="material-symbols-outlined text-lg icon-fill">receipt</span>
+
+          <!-- ─── Summary row ─── -->
+          <summary class="list-none cursor-pointer select-none">
+
+            <!-- Top strip: icon + vendor + amount + chevron -->
+            <div class="flex items-center gap-3 px-4 py-3 hover:bg-surface-container transition-colors">
+              <div class="w-9 h-9 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0">
+                <span class="material-symbols-outlined text-[18px] icon-fill">${isManual ? 'edit_note' : 'receipt'}</span>
               </div>
-              <div>
-                <p class="font-title-lg text-title-lg text-primary leading-tight">${escapeHtml(bill.vendor_name || 'Unknown')}</p>
-                <p class="font-label-sm text-label-sm text-on-surface-variant mt-0.5">
-                  ${displayDate} · ${itemCount} item${itemCount !== 1 ? 's' : ''}
-                  ${scannedAt ? `· Scanned ${scannedAt}` : ''}
-                </p>
+              <div class="flex-1 min-w-0">
+                <p class="font-title-lg text-title-lg text-primary leading-tight truncate">${escapeHtml(bill.vendor_name || 'Unknown Vendor')}</p>
               </div>
+              <span class="font-title-lg text-title-lg text-secondary shrink-0">${formatCurrency(bill.total_amount ?? 0)}</span>
+              <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200 shrink-0">expand_more</span>
             </div>
-            <div class="flex items-center gap-3">
-              <span class="font-title-lg text-title-lg text-secondary">${formatCurrency(bill.total_amount ?? 0)}</span>
+
+            <!-- Bottom strip: date + count + badge + edit -->
+            <div class="flex items-center gap-2 px-4 pb-3 flex-wrap">
+              <span class="inline-flex items-center gap-1 text-on-surface-variant font-label-sm text-label-sm">
+                <span class="material-symbols-outlined text-[14px]">calendar_today</span>
+                ${displayDate}
+              </span>
+              <span class="text-outline text-xs">·</span>
+              <span class="font-label-sm text-label-sm text-on-surface-variant">${itemCount} item${itemCount !== 1 ? 's' : ''}</span>
+              ${isManual ? '<span class="inline-flex items-center gap-0.5 bg-surface-container text-on-surface-variant border border-outline-variant px-1.5 py-0.5 rounded-full text-[10px] font-medium"><span class="material-symbols-outlined text-[11px]">edit_note</span>Manual</span>' : ''}
               <button
                 onclick="event.preventDefault(); event.stopPropagation(); openEditModal(${JSON.stringify(bill).replace(/"/g, '&quot;')})"
-                class="inline-flex items-center gap-1 text-on-surface-variant hover:text-secondary border border-outline-variant hover:border-secondary/40 px-2.5 py-1.5 rounded-lg transition-colors font-label-sm text-label-sm bg-surface-container-lowest"
+                class="ml-auto inline-flex items-center gap-1 text-on-surface-variant hover:text-secondary border border-outline-variant hover:border-secondary/40 px-2 py-1 rounded-lg transition-colors font-label-sm text-label-sm bg-surface-container-lowest text-xs"
                 title="Edit bill"
               >
-                <span class="material-symbols-outlined text-[16px]">edit</span>
+                <span class="material-symbols-outlined text-[14px]">edit</span>
                 Edit
               </button>
-              <span class="material-symbols-outlined text-on-surface-variant group-open:rotate-180 transition-transform duration-200">expand_more</span>
             </div>
           </summary>
-          <div class="border-t border-surface-container px-6 py-4">
+
+          <!-- ─── Expanded detail ─── -->
+          <div class="border-t border-surface-container px-4 py-3">
             <table class="w-full text-left text-sm">
               <thead>
-                <tr class="text-on-surface-variant">
-                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2">Item</th>
-                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 hidden md:table-cell">Description</th>
-                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-center">Qty</th>
+                <tr class="text-on-surface-variant border-b border-surface-container">
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 pr-2">Item</th>
+                  <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-center w-10">Qty</th>
                   <th class="font-label-sm text-label-sm uppercase tracking-wider pb-2 text-right">Price</th>
                 </tr>
               </thead>
@@ -1002,27 +1011,23 @@
                   const d = item.description ? escapeHtml(item.description) : '';
                   return `
                   <tr>
-                    <td class="py-2 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
-                    <td class="py-2 hidden md:table-cell text-on-surface-variant">
-                      ${d
-                        ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded-full text-xs font-medium">
-                            <span class="material-symbols-outlined text-[13px]">info</span>${d}
-                          </span>`
-                        : '<span class="text-outline text-xs">—</span>'}
+                    <td class="py-2 pr-2">
+                      <p class="font-body-md text-body-md text-on-surface leading-snug">${escapeHtml(item.item_name)}</p>
+                      ${d ? `<p class="mt-0.5 inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-1.5 py-0.5 rounded-full text-[11px] font-medium"><span class="material-symbols-outlined text-[12px]">info</span>${d}</p>` : ''}
                     </td>
-                    <td class="py-2 text-center text-on-surface-variant">${item.quantity ?? 1}</td>
+                    <td class="py-2 text-center text-on-surface-variant text-sm">${item.quantity ?? 1}</td>
                     <td class="py-2 text-right font-label-md text-label-md text-on-surface">${formatCurrency(item.price)}</td>
                   </tr>`;
                 }).join('')}
               </tbody>
               <tfoot class="border-t border-outline-variant">
                 <tr class="text-on-surface-variant">
-                  <td colspan="2" class="pt-3 font-label-md text-label-md">Tax</td>
-                  <td class="pt-3 text-right font-label-md text-label-md">${formatCurrency(bill.tax ?? 0)}</td>
+                  <td colspan="2" class="pt-2 font-label-md text-label-md">Tax</td>
+                  <td class="pt-2 text-right font-label-md text-label-md">${formatCurrency(bill.tax ?? 0)}</td>
                 </tr>
-                <tr class="text-primary font-semibold">
-                  <td colspan="2" class="pt-1 font-title-lg text-title-lg">Total</td>
-                  <td class="pt-1 text-right font-title-lg text-title-lg text-secondary">${formatCurrency(bill.total_amount ?? 0)}</td>
+                <tr class="text-primary">
+                  <td colspan="2" class="pt-1 font-title-lg text-title-lg font-semibold">Total</td>
+                  <td class="pt-1 text-right font-title-lg text-title-lg text-secondary font-semibold">${formatCurrency(bill.total_amount ?? 0)}</td>
                 </tr>
               </tfoot>
             </table>
