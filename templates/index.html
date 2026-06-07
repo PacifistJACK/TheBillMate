@@ -899,6 +899,10 @@
 
       <div class="space-y-4">
         <div>
+          <label class="font-label-md text-label-md text-on-surface-variant" for="auth-name">Full Name <span class="text-[11px] font-normal opacity-70">(Required for Sign Up)</span></label>
+          <input id="auth-name" type="text" placeholder="John Doe" class="w-full px-4 py-2.5 mt-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+        </div>
+        <div>
           <label class="font-label-md text-label-md text-on-surface-variant" for="auth-email">Email</label>
           <input id="auth-email" type="email" placeholder="you@example.com" class="w-full px-4 py-2.5 mt-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
         </div>
@@ -956,7 +960,7 @@
         document.getElementById('nav-user-info').classList.add('flex');
         document.getElementById('btn-nav-logout').classList.remove('hidden');
         document.getElementById('btn-nav-logout').classList.add('flex');
-        document.getElementById('nav-user-email').textContent = user.email || 'User';
+        document.getElementById('nav-user-email').textContent = user.displayName || user.email || 'User';
         loadBillHistory();
       } else {
         // User is signed out
@@ -988,13 +992,18 @@
     }
 
     async function signupUser() {
+      const name  = document.getElementById('auth-name').value.trim();
       const email = document.getElementById('auth-email').value.trim();
       const pass  = document.getElementById('auth-password').value;
       if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+      if (!name) { showAuthError('Please enter your full name for signup.'); return; }
       if (pass.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
       try {
         document.getElementById('auth-error').classList.add('hidden');
-        await firebase.auth().createUserWithEmailAndPassword(email, pass);
+        const userCred = await firebase.auth().createUserWithEmailAndPassword(email, pass);
+        await userCred.user.updateProfile({ displayName: name });
+        // Force UI update immediately so the navbar shows the name instead of email
+        document.getElementById('nav-user-email').textContent = name;
       } catch (e) { showAuthError(e.message); }
     }
 
