@@ -534,6 +534,36 @@
             </button>
           </div>
         </div>
+        <div id="dashboard-metrics" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8 hidden">
+          <div class="bg-surface-container-lowest rounded-xl p-5 border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <div class="flex items-center gap-2 mb-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[18px]">calendar_month</span>
+              <span class="font-label-md text-label-md uppercase tracking-wider">This Month</span>
+            </div>
+            <p id="metric-monthly-total" class="font-headline-md text-headline-md text-primary font-bold">₹0.00</p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-xl p-5 border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <div class="flex items-center gap-2 mb-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+              <span class="font-label-md text-label-md uppercase tracking-wider">Overall Total</span>
+            </div>
+            <p id="metric-overall-total" class="font-headline-md text-headline-md text-secondary font-bold">₹0.00</p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-xl p-5 border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <div class="flex items-center gap-2 mb-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[18px]">storefront</span>
+              <span class="font-label-md text-label-md uppercase tracking-wider">Unique Vendors</span>
+            </div>
+            <p id="metric-vendors" class="font-headline-md text-headline-md text-tertiary font-bold">0</p>
+          </div>
+          <div class="bg-surface-container-lowest rounded-xl p-5 border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)]">
+            <div class="flex items-center gap-2 mb-2 text-on-surface-variant">
+              <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+              <span class="font-label-md text-label-md uppercase tracking-wider">Total Bills</span>
+            </div>
+            <p id="metric-bill-count" class="font-headline-md text-headline-md text-on-surface font-bold">0</p>
+          </div>
+        </div>
 
         <div id="history-list" class="space-y-4">
           <div class="text-center text-on-surface-variant py-16 font-body-md text-body-md" id="history-empty-state">
@@ -1229,8 +1259,16 @@
               <span class="font-label-sm text-label-sm text-on-surface-variant">${itemCount} item${itemCount !== 1 ? 's' : ''}</span>
               ${isManual ? '<span class="inline-flex items-center gap-0.5 bg-surface-container text-on-surface-variant border border-outline-variant px-1.5 py-0.5 rounded-full text-[10px] font-medium"><span class="material-symbols-outlined text-[11px]">edit_note</span>Manual</span>' : ''}
               <button
-                onclick="event.preventDefault(); event.stopPropagation(); openEditModal(${JSON.stringify(bill).replace(/"/g, '&quot;')})"
+                onclick="event.preventDefault(); event.stopPropagation(); printBill(${JSON.stringify(bill).replace(/"/g, '&quot;')})"
                 class="ml-auto inline-flex items-center gap-1 text-on-surface-variant hover:text-secondary border border-outline-variant hover:border-secondary/40 px-2 py-1 rounded-lg transition-colors font-label-sm text-label-sm bg-surface-container-lowest text-xs"
+                title="Print bill"
+              >
+                <span class="material-symbols-outlined text-[14px]">print</span>
+                Print
+              </button>
+              <button
+                onclick="event.preventDefault(); event.stopPropagation(); openEditModal(${JSON.stringify(bill).replace(/"/g, '&quot;')})"
+                class="ml-2 inline-flex items-center gap-1 text-on-surface-variant hover:text-secondary border border-outline-variant hover:border-secondary/40 px-2 py-1 rounded-lg transition-colors font-label-sm text-label-sm bg-surface-container-lowest text-xs"
                 title="Edit bill"
               >
                 <span class="material-symbols-outlined text-[14px]">edit</span>
@@ -1621,6 +1659,68 @@
     function resetUI() {
       document.getElementById('result-section').classList.add('hidden');
       document.getElementById('scan-section').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ── Print Bill ────────────────────────────────────────────────────────
+    function printBill(bill) {
+      const w = window.open('', '_blank');
+      const dateStr = toDDMMYYYY(bill.bill_date || bill.date) || 'No date';
+      const itemsHtml = (bill.items || []).map(i => `
+        <tr>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${escapeHtml(i.item_name)} <br> <small style="color: #666;">${escapeHtml(i.description || '')}</small></td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${i.quantity || 1}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">${formatCurrency(i.price)}</td>
+        </tr>
+      `).join('');
+
+      w.document.write(`
+        <html>
+          <head>
+            <title>Receipt - ${escapeHtml(bill.vendor_name || 'Vendor')}</title>
+            <style>
+              body { font-family: system-ui, -apple-system, sans-serif; color: #1a1a1a; max-width: 800px; margin: 0 auto; padding: 40px; }
+              h1 { margin-bottom: 4px; font-size: 24px; color: #006a61; }
+              p { margin: 0; color: #555; }
+              table { width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 14px; }
+              th { padding: 8px; border-bottom: 2px solid #1a1a1a; text-align: left; }
+              th.right { text-align: right; }
+              th.center { text-align: center; }
+              .totals { margin-top: 24px; text-align: right; font-size: 14px; }
+              .totals div { margin-bottom: 8px; }
+              .totals .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #1a1a1a; padding-top: 8px; color: #006a61; }
+              @media print {
+                body { padding: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>${escapeHtml(bill.vendor_name || 'Unknown Vendor')}</h1>
+            <p>Date: ${dateStr}</p>
+            ${bill.source === 'manual' ? '<p>Source: Manual Entry</p>' : ''}
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th class="center">Qty</th>
+                  <th class="right">Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+
+            <div class="totals">
+              <div>Tax: <strong>${formatCurrency(bill.tax || 0)}</strong></div>
+              <div class="grand-total">Total: ${formatCurrency(bill.total_amount || 0)}</div>
+            </div>
+          </body>
+        </html>
+      `);
+      w.document.close();
+      w.focus();
+      setTimeout(() => { w.print(); }, 250);
     }
 
     // ── Utilities ─────────────────────────────────────────────────────────
