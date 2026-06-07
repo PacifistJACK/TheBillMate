@@ -78,4 +78,4 @@ This app is production-ready and configured to deploy instantly on **Render**.
 4. Deploy!
 
 ---
-*Created with ❤️ for seamless financial management.*
+
