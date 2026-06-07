@@ -262,15 +262,21 @@
           Bills</a>
       </div>
 
-      <div class="flex items-center gap-4">
-        <div id="nav-user-info" class="hidden items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-lg">
-          <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[20px]">account_circle</span>
-          <span id="nav-user-email" class="font-label-md text-label-md text-on-secondary-container font-semibold truncate max-w-[140px]"></span>
-        </div>
-        <button id="btn-nav-logout" onclick="logoutUser()" class="hidden items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface cursor-pointer">
-          <span class="material-symbols-outlined text-[20px]">logout</span>
-          <span class="font-label-md text-label-md">Logout</span>
+      <div class="relative flex items-center">
+        <!-- Trigger -->
+        <button id="nav-user-info" onclick="toggleUserDropdown(event)" class="hidden items-center gap-1.5 md:gap-2 bg-secondary-container px-2 md:px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
+          <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[18px] md:text-[20px]">account_circle</span>
+          <span id="nav-user-email" class="font-label-sm md:font-label-md text-label-sm md:text-label-md text-on-secondary-container font-semibold truncate max-w-[90px] sm:max-w-[140px]"></span>
+          <span class="material-symbols-outlined text-on-secondary-container text-[16px]">expand_more</span>
         </button>
+
+        <!-- Dropdown -->
+        <div id="nav-user-dropdown" class="hidden absolute right-0 top-full mt-2 w-48 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-lg z-50 overflow-hidden flex-col">
+          <button id="btn-nav-logout" onclick="logoutUser()" class="w-full flex items-center gap-3 px-4 py-3 hover:bg-surface-container transition-colors text-on-surface text-left cursor-pointer">
+            <span class="material-symbols-outlined text-[20px] text-error">logout</span>
+            <span class="font-label-md text-label-md text-error">Logout</span>
+          </button>
+        </div>
       </div>
     </div>
   </nav>
@@ -958,8 +964,6 @@
         document.getElementById('auth-screen').classList.add('hidden');
         document.getElementById('nav-user-info').classList.remove('hidden');
         document.getElementById('nav-user-info').classList.add('flex');
-        document.getElementById('btn-nav-logout').classList.remove('hidden');
-        document.getElementById('btn-nav-logout').classList.add('flex');
         document.getElementById('nav-user-email').textContent = user.displayName || user.email || 'User';
         loadBillHistory();
       } else {
@@ -968,8 +972,8 @@
         document.getElementById('auth-screen').classList.remove('hidden');
         document.getElementById('nav-user-info').classList.add('hidden');
         document.getElementById('nav-user-info').classList.remove('flex');
-        document.getElementById('btn-nav-logout').classList.add('hidden');
-        document.getElementById('btn-nav-logout').classList.remove('flex');
+        document.getElementById('nav-user-dropdown').classList.add('hidden');
+        document.getElementById('nav-user-dropdown').classList.remove('flex');
       }
     });
 
@@ -1017,7 +1021,31 @@
 
     async function logoutUser() {
       await firebase.auth().signOut();
+      const dropdown = document.getElementById('nav-user-dropdown');
+      if (dropdown) {
+        dropdown.classList.add('hidden');
+        dropdown.classList.remove('flex');
+      }
     }
+
+    // ── UI Dropdowns ──────────────────────────────────────────────────────
+    function toggleUserDropdown(e) {
+      if (e) e.stopPropagation();
+      const dropdown = document.getElementById('nav-user-dropdown');
+      dropdown.classList.toggle('hidden');
+      dropdown.classList.toggle('flex');
+    }
+
+    document.addEventListener('click', (e) => {
+      const dropdown = document.getElementById('nav-user-dropdown');
+      const trigger = document.getElementById('nav-user-info');
+      if (dropdown && !dropdown.classList.contains('hidden')) {
+        if (!dropdown.contains(e.target) && !trigger.contains(e.target)) {
+          dropdown.classList.add('hidden');
+          dropdown.classList.remove('flex');
+        }
+      }
+    });
 
     // ── Auth Headers helper ──────────────────────────────────────────────
     function authHeaders(extra = {}) {
