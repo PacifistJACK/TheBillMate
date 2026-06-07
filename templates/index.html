@@ -1206,15 +1206,50 @@
 
         if (!Array.isArray(bills) || bills.length === 0) {
           emptyState.classList.remove('hidden');
+          document.getElementById('dashboard-metrics').classList.add('hidden');
           return;
         }
 
         emptyState.classList.add('hidden');
+        document.getElementById('dashboard-metrics').classList.remove('hidden');
 
-        // Backend already returns newest-first — no reverse needed
+        let overallTotal = 0;
+        let monthlyTotal = 0;
+        const vendors = new Set();
+        const now = new Date();
+        const currentMonth = now.getMonth() + 1;
+        const currentYear = now.getFullYear();
+
+        // Backend already returns newest-first - no reverse needed
         bills.forEach((bill, idx) => {
           container.insertBefore(buildHistoryCard(bill, idx), emptyState);
+
+          const amt = parseFloat(bill.total_amount) || 0;
+          overallTotal += amt;
+          if (bill.vendor_name) vendors.add(bill.vendor_name.trim().toLowerCase());
+          
+          let billD = bill.bill_date || bill.date;
+          if (billD) {
+            let m = null, y = null;
+            if (/^\d{2}-\d{2}-\d{4}$/.test(billD)) {
+               const parts = billD.split('-');
+               m = parseInt(parts[1], 10);
+               y = parseInt(parts[2], 10);
+            } else if (/^\d{4}-\d{2}-\d{2}$/.test(billD)) {
+               const parts = billD.split('-');
+               y = parseInt(parts[0], 10);
+               m = parseInt(parts[1], 10);
+            }
+            if (m === currentMonth && y === currentYear) {
+               monthlyTotal += amt;
+            }
+          }
         });
+
+        document.getElementById('metric-overall-total').textContent = formatCurrency(overallTotal);
+        document.getElementById('metric-monthly-total').textContent = formatCurrency(monthlyTotal);
+        document.getElementById('metric-vendors').textContent = vendors.size.toString();
+        document.getElementById('metric-bill-count').textContent = bills.length.toString();
 
       } catch (err) {
         console.error('Failed to load bill history:', err);

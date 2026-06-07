@@ -34,20 +34,33 @@ SAMBANOVA_BASE_URL  = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanov
 MONGO_URI           = os.environ.get("MONGO_URI", "")
 RENDER_EXTERNAL_URL = os.environ.get("RENDER_EXTERNAL_URL", "")  # auto-set by Render
 FIREBASE_CREDS_PATH = os.environ.get("FIREBASE_CREDS_PATH", "")
+FIREBASE_CREDS_JSON = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "")
 
 # ─────────────────────────────
 # Firebase Admin SDK
 # ─────────────────────────────
-if FIREBASE_CREDS_PATH and not os.path.isabs(FIREBASE_CREDS_PATH):
-    FIREBASE_CREDS_PATH = os.path.join(BASE_DIR, FIREBASE_CREDS_PATH)
-
-if FIREBASE_CREDS_PATH and os.path.exists(FIREBASE_CREDS_PATH):
-    _cred = fb_credentials.Certificate(FIREBASE_CREDS_PATH)
-    if not firebase_admin._apps:
-        firebase_admin.initialize_app(_cred)
-    print(f"[INFO] Firebase Admin SDK initialised ✓  ({FIREBASE_CREDS_PATH})")
+if FIREBASE_CREDS_JSON:
+    import json
+    try:
+        _cred_dict = json.loads(FIREBASE_CREDS_JSON)
+        _cred = fb_credentials.Certificate(_cred_dict)
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(_cred)
+        print("[INFO] Firebase Admin SDK initialised from JSON env var ✓")
+    except Exception as e:
+        print(f"[ERROR] Failed to parse FIREBASE_SERVICE_ACCOUNT_JSON: {e}")
+elif FIREBASE_CREDS_PATH:
+    if not os.path.isabs(FIREBASE_CREDS_PATH):
+        FIREBASE_CREDS_PATH = os.path.join(BASE_DIR, FIREBASE_CREDS_PATH)
+    if os.path.exists(FIREBASE_CREDS_PATH):
+        _cred = fb_credentials.Certificate(FIREBASE_CREDS_PATH)
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(_cred)
+        print(f"[INFO] Firebase Admin SDK initialised from file ✓ ({FIREBASE_CREDS_PATH})")
+    else:
+        print(f"[WARN] FIREBASE_CREDS_PATH not set or file missing at {FIREBASE_CREDS_PATH} — auth will not work.")
 else:
-    print(f"[WARN] FIREBASE_CREDS_PATH not set or file missing at {FIREBASE_CREDS_PATH} — auth will not work.")
+    print("[WARN] No Firebase credentials provided (neither JSON nor PATH).")
 
 security = HTTPBearer()
 
