@@ -1,6 +1,7 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from sambanova import SambaNova
 from dotenv import load_dotenv
@@ -17,16 +18,54 @@ import urllib.request
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+import firebase_admin
+from firebase_admin import credentials as fb_credentials, auth as fb_auth
+
 # ─────────────────────────────
-load_dotenv()   # reads .env into os.environ
+load_dotenv(os.path.join(BASE_DIR, ".env"), override=True)   # reads .env into os.environ
 
 # ─────────────────────────────
 # Config
 # ─────────────────────────────
-SAMBANOVA_API_KEY  = os.environ.get("SAMBANOVA_API_KEY")
-SAMBANOVA_BASE_URL = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1")
-MONGO_URI          = os.environ.get("MONGO_URI", "")
+SAMBANOVA_API_KEY   = os.environ.get("SAMBANOVA_API_KEY")
+SAMBANOVA_BASE_URL  = os.environ.get("SAMBANOVA_BASE_URL", "https://api.sambanova.ai/v1")
+MONGO_URI           = os.environ.get("MONGO_URI", "")
 RENDER_EXTERNAL_URL = os.environ.get("RENDER_EXTERNAL_URL", "")  # auto-set by Render
+FIREBASE_CREDS_PATH = os.environ.get("FIREBASE_CREDS_PATH", "")
+
+# ─────────────────────────────
+# Firebase Admin SDK
+# ─────────────────────────────
+if FIREBASE_CREDS_PATH and not os.path.isabs(FIREBASE_CREDS_PATH):
+    FIREBASE_CREDS_PATH = os.path.join(BASE_DIR, FIREBASE_CREDS_PATH)
+
+if FIREBASE_CREDS_PATH and os.path.exists(FIREBASE_CREDS_PATH):
+    _cred = fb_credentials.Certificate(FIREBASE_CREDS_PATH)
+    if not firebase_admin._apps:
+        firebase_admin.initialize_app(_cred)
+    print(f"[INFO] Firebase Admin SDK initialised ✓  ({FIREBASE_CREDS_PATH})")
+else:
+    print(f"[WARN] FIREBASE_CREDS_PATH not set or file missing at {FIREBASE_CREDS_PATH} — auth will not work.")
+
+security = HTTPBearer()
+
+
+async def get_current_user(
+    creds: HTTPAuthorizationCredentials = Depends(security),
+) -> dict:
+    """Verify the Firebase ID-token from the Authorization header."""
+    if not firebase_admin._apps:
+        raise HTTPException(
+            status_code=501,
+            detail="Firebase is not configured on the server. Set FIREBASE_CREDS_PATH in .env.",
+        )
+    try:
+        decoded = fb_auth.verify_id_token(creds.credentials)
+        return decoded  # contains 'uid', 'email', etc.
+    except Exception:
+        raise HTTPException(status_code=401, detail="Invalid or expired authentication token.")
 
 # ─────────────────────────────
 # SambaNova client
@@ -94,6 +133,7 @@ async def lifespan(app: FastAPI):
 
     # Ensure index on created_at for efficient sorting
     await bills_collection.create_index([("created_at", DESCENDING)])
+    await bills_collection.create_index([("user_id", 1), ("created_at", DESCENDING)])
 
     print("[INFO] Connected to MongoDB Atlas ✓")
 
@@ -198,9 +238,9 @@ async def health():
 # GET /bills  — read from MongoDB
 # ─────────────────────────────
 @app.get("/bills")
-async def get_bills():
-    """Return all bills from MongoDB Atlas, newest first."""
-    cursor = bills_collection.find().sort("created_at", DESCENDING)
+async def get_bills(user: dict = Depends(get_current_user)):
+    """Return all bills for the authenticated user, newest first."""
+    cursor = bills_collection.find({"user_id": user["uid"]}).sort("created_at", DESCENDING)
     bills = [serialize_bill(doc) async for doc in cursor]
     return bills
 
@@ -209,7 +249,7 @@ async def get_bills():
 # POST /bills  — manually create a bill
 # ─────────────────────────────
 @app.post("/bills")
-async def create_bill(request: Request):
+async def create_bill(request: Request, user: dict = Depends(get_current_user)):
     """Save a manually entered bill directly to MongoDB Atlas."""
     try:
         body = await request.json()
@@ -219,6 +259,7 @@ async def create_bill(request: Request):
     bill_id  = str(uuid.uuid4())
     new_bill = {
         "_id":          bill_id,
+        "user_id":      user["uid"],
         "vendor_name":  body.get("vendor_name") or None,
         "bill_date":    body.get("bill_date")   or None,
         "items":        body.get("items")        or [],
@@ -235,7 +276,7 @@ async def create_bill(request: Request):
 # PATCH /bills/{bill_id}  — update in MongoDB
 # ─────────────────────────────
 @app.patch("/bills/{bill_id}")
-async def patch_bill(bill_id: str, request: Request):
+async def patch_bill(bill_id: str, request: Request, user: dict = Depends(get_current_user)):
     try:
         body = await request.json()
     except Exception:
@@ -250,7 +291,7 @@ async def patch_bill(bill_id: str, request: Request):
     }
 
     result = await bills_collection.find_one_and_update(
-        {"_id": bill_id},
+        {"_id": bill_id, "user_id": user["uid"]},
         {"$set": updates},
         return_document=True,
     )
@@ -265,7 +306,7 @@ async def patch_bill(bill_id: str, request: Request):
 # POST /upload-bill  — OCR + save to MongoDB
 # ─────────────────────────────
 @app.post("/upload-bill")
-async def upload_bill(file: UploadFile = File(...)):
+async def upload_bill(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
 
     # 1. Validate file type
     content_type = file.content_type or ""
@@ -358,6 +399,7 @@ Rules:
     bill_id = str(uuid.uuid4())
     new_bill = {
         "_id":          bill_id,
+        "user_id":      user["uid"],
         "vendor_name":  bill_data.get("vendor_name"),
         "bill_date":    bill_data.get("date"),
         "items":        bill_data.get("items") or [],
@@ -375,8 +417,8 @@ Rules:
 # DELETE /bills/{bill_id}
 # ─────────────────────────────
 @app.delete("/bills/{bill_id}")
-async def delete_bill(bill_id: str):
-    result = await bills_collection.delete_one({"_id": bill_id})
+async def delete_bill(bill_id: str, user: dict = Depends(get_current_user)):
+    result = await bills_collection.delete_one({"_id": bill_id, "user_id": user["uid"]})
     if result.deleted_count == 0:
         raise HTTPException(status_code=404, detail=f"Bill '{bill_id}' not found.")
     return {"success": True}

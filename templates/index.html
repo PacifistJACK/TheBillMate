@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html class="scroll-smooth" lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>The Bill Mate - Manage your bills with effortless precision</title>
-  <meta name="description" content="Scan or upload any bill to instantly extract structured financial data using AI. No manual entry — just pure organisation powered by The Bill Mate."/>
+  <meta name="description"
+    content="Scan or upload any bill to instantly extract structured financial data using AI. No manual entry — just pure organisation powered by The Bill Mate." />
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
-  <link rel="icon" type="image/png" href="/Logo.png"/>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
 
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  <link rel="icon" type="image/png" href="/Logo.png" />
+
+  <link href="https://fonts.googleapis.com" rel="preconnect" />
+  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
 
   <script id="tailwind-config">
     tailwind.config = {
@@ -84,26 +91,26 @@
             gutter: "24px"
           },
           fontFamily: {
-            "title-lg":           ["Inter"],
-            "label-sm":           ["Inter"],
+            "title-lg": ["Inter"],
+            "label-sm": ["Inter"],
             "headline-lg-mobile": ["Inter"],
-            "headline-md":        ["Inter"],
-            display:              ["Inter"],
-            "script-md":          ["Inter"],
-            "headline-lg":        ["Inter"],
-            "label-md":           ["Inter"],
-            "body-lg":            ["Inter"]
+            "headline-md": ["Inter"],
+            display: ["Inter"],
+            "script-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "label-md": ["Inter"],
+            "body-lg": ["Inter"]
           },
           fontSize: {
-            "title-lg":           ["20px", { lineHeight: "28px", fontWeight: "600" }],
-            "label-sm":           ["12px", { lineHeight: "16px", fontWeight: "600" }],
+            "title-lg": ["20px", { lineHeight: "28px", fontWeight: "600" }],
+            "label-sm": ["12px", { lineHeight: "16px", fontWeight: "600" }],
             "headline-lg-mobile": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "700" }],
-            "headline-md":        ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
-            display:              ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
-            "body-md":            ["16px", { lineHeight: "24px", fontWeight: "400" }],
-            "headline-lg":        ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
-            "label-md":           ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "500" }],
-            "body-lg":            ["18px", { lineHeight: "28px", fontWeight: "400" }]
+            "headline-md": ["24px", { lineHeight: "32px", letterSpacing: "-0.01em", fontWeight: "600" }],
+            display: ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+            "headline-lg": ["32px", { lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "700" }],
+            "label-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "500" }],
+            "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }]
           }
         }
       }
@@ -116,56 +123,122 @@
       display: inline-block;
       vertical-align: middle;
     }
+
     .icon-fill {
       font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     }
+
     .scan-line {
       animation: scan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
     }
+
     @keyframes scan {
-      0%,  100% { top: 0%;   opacity: 0; }
-      10%,  90% { opacity: 1; }
-      50%        { top: 100%; }
+
+      0%,
+      100% {
+        top: 0%;
+        opacity: 0;
+      }
+
+      10%,
+      90% {
+        opacity: 1;
+      }
+
+      50% {
+        top: 100%;
+      }
     }
+
     @keyframes spin {
-      to { transform: rotate(360deg); }
+      to {
+        transform: rotate(360deg);
+      }
     }
+
     .spinner {
       animation: spin 0.9s linear infinite;
     }
+
     @keyframes spinReverse {
-      to { transform: rotate(-360deg); }
+      to {
+        transform: rotate(-360deg);
+      }
     }
+
     .spinner-reverse {
       animation: spinReverse 1.5s linear infinite;
     }
+
     @keyframes logoPulse {
-      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(0, 106, 97, 0.2)); }
-      50% { transform: scale(1.08); filter: drop-shadow(0 0 12px rgba(0, 106, 97, 0.5)); }
+
+      0%,
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 4px rgba(0, 106, 97, 0.2));
+      }
+
+      50% {
+        transform: scale(1.08);
+        filter: drop-shadow(0 0 12px rgba(0, 106, 97, 0.5));
+      }
     }
+
     .logo-pulse {
       animation: logoPulse 2s ease-in-out infinite;
     }
+
     @keyframes fadeSlideUp {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0);    }
+      from {
+        opacity: 0;
+        transform: translateY(24px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
+
     .animate-result {
       animation: fadeSlideUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     }
+
     #camera-modal video,
     #camera-modal canvas {
       max-height: 70vh;
       object-fit: cover;
       border-radius: 0.75rem;
     }
+
     @keyframes pulseDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.4; transform: scale(0.75); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.75);
+      }
     }
-    .pulse-dot { animation: pulseDot 1.4s ease-in-out infinite; }
-    @keyframes animSpin { to { transform: rotate(360deg); } }
-    .animate-spin { animation: animSpin 0.8s linear infinite; display: inline-block; }
+
+    .pulse-dot {
+      animation: pulseDot 1.4s ease-in-out infinite;
+    }
+
+    @keyframes animSpin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .animate-spin {
+      animation: animSpin 0.8s linear infinite;
+      display: inline-block;
+    }
   </style>
 </head>
 
@@ -173,23 +246,31 @@
 
   <!-- ── Navbar ── -->
   <nav class="bg-surface w-full top-0 sticky z-50 border-b border-surface-container shadow-sm">
-    <div class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
+    <div
+      class="flex justify-between items-center px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto">
       <div class="flex items-center gap-2">
-        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover"/>
+        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover" />
         <div class="font-title-lg text-title-lg font-bold text-primary">The Bill Mate</div>
       </div>
 
       <div class="hidden md:flex items-center gap-gutter font-body-md text-body-md">
-        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#how-it-works">How it Works</a>
-        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#security">Security</a>
-        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#my-bills">My Bills</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#how-it-works">How
+          it Works</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200"
+          href="#security">Security</a>
+        <a class="text-on-surface-variant hover:text-secondary transition-colors duration-200" href="#my-bills">My
+          Bills</a>
       </div>
 
       <div class="flex items-center gap-4">
-        <div class="flex items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-lg">
-          <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[20px]">receipt_long</span>
-          <span class="font-label-md text-label-md text-on-secondary-container font-semibold">My Bills</span>
+        <div id="nav-user-info" class="hidden items-center gap-2 bg-secondary-container px-3 py-1.5 rounded-lg">
+          <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[20px]">account_circle</span>
+          <span id="nav-user-email" class="font-label-md text-label-md text-on-secondary-container font-semibold truncate max-w-[140px]"></span>
         </div>
+        <button id="btn-nav-logout" onclick="logoutUser()" class="hidden items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface cursor-pointer">
+          <span class="material-symbols-outlined text-[20px]">logout</span>
+          <span class="font-label-md text-label-md">Logout</span>
+        </button>
       </div>
     </div>
   </nav>
@@ -197,9 +278,10 @@
   <main class="flex-grow">
 
     <!-- ── Hero ── -->
-    <section class="px-margin-mobile md:px-margin-desktop py-16 md:py-24 max-w-container-max mx-auto flex flex-col items-center text-center">
+    <section
+      class="px-margin-mobile md:px-margin-desktop py-16 md:py-24 max-w-container-max mx-auto flex flex-col items-center text-center">
       <h1 class="font-display text-display text-primary mb-6 max-w-4xl leading-tight">
-        Manage your bills with<br class="hidden md:block"/> effortless precision.
+        Manage your bills with<br class="hidden md:block" /> effortless precision.
       </h1>
       <p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl">
         Scan or upload any bill to instantly extract details into structured data.
@@ -207,58 +289,63 @@
       </p>
 
       <div id="scan-section" class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full max-w-4xl">
-        <button
-          id="btn-camera"
-          onclick="openCameraModal()"
-          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer"
-        >
-          <div class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-          <div class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-2">
+        <button id="btn-camera" onclick="openCameraModal()"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer">
+          <div
+            class="absolute inset-0 bg-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          </div>
+          <div
+            class="w-16 h-16 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-2">
             <span class="material-symbols-outlined text-3xl icon-fill">photo_camera</span>
           </div>
-          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Scan with Camera</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Use your device to capture instantly</div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">
+            Scan with Camera</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Use your device to capture
+            instantly</div>
         </button>
 
-        <label
-          id="btn-upload"
-          for="file-upload-input"
-          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden cursor-pointer"
-        >
-          <div class="absolute inset-0 bg-primary-fixed/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-          <div class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center mb-2">
+        <label id="btn-upload" for="file-upload-input"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden cursor-pointer">
+          <div
+            class="absolute inset-0 bg-primary-fixed/30 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          </div>
+          <div
+            class="w-16 h-16 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center mb-2">
             <span class="material-symbols-outlined text-3xl icon-fill">upload_file</span>
           </div>
-          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload Image</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Select a file from your gallery</div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload
+            Image</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Select a file from your gallery
+          </div>
         </label>
 
-        <button
-          id="btn-add-manual"
-          onclick="openAddModal()"
-          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer"
-        >
-          <div class="absolute inset-0 bg-tertiary-container/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-          <div class="w-16 h-16 rounded-full bg-surface-container text-on-surface flex items-center justify-center mb-2 border border-outline-variant">
+        <button id="btn-add-manual" onclick="openAddModal()"
+          class="group relative bg-surface-container-lowest rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:-translate-y-1 transition-transform duration-300 shadow-[0_16px_32px_-12px_rgba(0,0,0,0.12)] border border-surface-container overflow-hidden text-left cursor-pointer">
+          <div
+            class="absolute inset-0 bg-tertiary-container/20 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          </div>
+          <div
+            class="w-16 h-16 rounded-full bg-surface-container text-on-surface flex items-center justify-center mb-2 border border-outline-variant">
             <span class="material-symbols-outlined text-3xl">edit_note</span>
           </div>
-          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Add Manually</div>
+          <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Add
+            Manually</div>
           <div class="font-body-md text-body-md text-on-surface-variant text-center">Type in bill details by hand</div>
         </button>
 
-        <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)"/>
+        <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)" />
       </div>
     </section>
 
     <!-- ── Animated preview ── -->
     <section class="px-margin-mobile md:px-margin-desktop pb-24 max-w-container-max mx-auto relative">
-      <div class="relative w-full aspect-video max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18)] bg-surface-container-lowest border border-surface-container flex items-center justify-center">
-        <div
-          class="absolute inset-0 bg-cover bg-center opacity-20"
+      <div
+        class="relative w-full aspect-video max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-[0_24px_48px_-12px_rgba(0,0,0,0.18)] bg-surface-container-lowest border border-surface-container flex items-center justify-center">
+        <div class="absolute inset-0 bg-cover bg-center opacity-20"
           style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')"
-          aria-hidden="true"
-        ></div>
-        <div class="relative w-64 h-80 bg-surface-container-lowest rounded-lg shadow-lg border border-outline-variant p-4 flex flex-col">
+          aria-hidden="true"></div>
+        <div
+          class="relative w-64 h-80 bg-surface-container-lowest rounded-lg shadow-lg border border-outline-variant p-4 flex flex-col">
           <div class="w-full h-4 bg-surface-container rounded mb-4"></div>
           <div class="w-3/4 h-3 bg-surface-container rounded mb-8"></div>
           <div class="space-y-3 flex-grow">
@@ -270,7 +357,8 @@
             <div class="w-1/3 h-4 bg-secondary-container rounded"></div>
             <div class="w-1/4 h-4 bg-primary-fixed rounded"></div>
           </div>
-          <div class="absolute left-0 right-0 h-1 bg-secondary shadow-[0_0_8px_rgba(0,106,97,0.8)] scan-line z-10"></div>
+          <div class="absolute left-0 right-0 h-1 bg-secondary shadow-[0_0_8px_rgba(0,106,97,0.8)] scan-line z-10">
+          </div>
         </div>
       </div>
     </section>
@@ -286,19 +374,28 @@
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 auto-rows-[minmax(250px,auto)]">
-          <div class="md:col-span-2 bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] relative overflow-hidden group">
-            <div class="absolute -right-12 -top-12 w-48 h-48 bg-secondary-container/30 rounded-full blur-3xl group-hover:bg-secondary-container/50 transition-colors"></div>
-            <div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-secondary border border-surface-dim">
+          <div
+            class="md:col-span-2 bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] relative overflow-hidden group">
+            <div
+              class="absolute -right-12 -top-12 w-48 h-48 bg-secondary-container/30 rounded-full blur-3xl group-hover:bg-secondary-container/50 transition-colors">
+            </div>
+            <div
+              class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-secondary border border-surface-dim">
               <span class="material-symbols-outlined">document_scanner</span>
             </div>
             <h3 class="font-headline-md text-headline-md text-primary mb-3">Scan to JSON</h3>
             <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
-              Snap or upload a photo of any bill and our AI reads it like a human would — picking out the vendor, date, every line item, quantity, price, tax, and total. It returns all of that as clean structured data instantly, with zero manual entry from you.
+              Snap or upload a photo of any bill and our AI reads it like a human would — picking out the vendor, date,
+              every line item, quantity, price, tax, and total. It returns all of that as clean structured data
+              instantly, with zero manual entry from you.
             </p>
           </div>
 
-          <div class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col" id="security">
-            <div class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-primary border border-surface-dim">
+          <div
+            class="bg-surface-container-lowest rounded-2xl p-8 border border-surface-container shadow-[0_4px_16px_rgba(0,0,0,0.04)] flex flex-col"
+            id="security">
+            <div
+              class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-primary border border-surface-dim">
               <span class="material-symbols-outlined">lock</span>
             </div>
             <h3 class="font-title-lg text-title-lg text-primary mb-3">Secure Storage</h3>
@@ -308,10 +405,14 @@
             </p>
           </div>
 
-          <div class="md:col-span-3 bg-primary-container text-on-primary-container rounded-2xl p-8 md:p-12 border border-surface-tint shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
-            <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-secondary-fixed via-transparent to-transparent pointer-events-none"></div>
+          <div
+            class="md:col-span-3 bg-primary-container text-on-primary-container rounded-2xl p-8 md:p-12 border border-surface-tint shadow-[0_8px_24px_rgba(0,0,0,0.1)] flex flex-col md:flex-row items-center gap-12 overflow-hidden relative">
+            <div
+              class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-secondary-fixed via-transparent to-transparent pointer-events-none">
+            </div>
             <div class="flex-1 relative z-10">
-              <div class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-6 text-primary-fixed border border-white/20">
+              <div
+                class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-6 text-primary-fixed border border-white/20">
                 <span class="material-symbols-outlined">history</span>
               </div>
               <h3 class="font-headline-md text-headline-md text-on-primary mb-3">Complete History</h3>
@@ -319,15 +420,14 @@
                 Never lose track of a payment again. Access a comprehensive archive of every bill you've ever processed,
                 categorised and filterable for absolute clarity.
               </p>
-              <a
-                href="#my-bills"
-                class="inline-flex items-center gap-2 mt-6 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
-              >
+              <a href="#my-bills"
+                class="inline-flex items-center gap-2 mt-6 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
                 <span class="material-symbols-outlined text-sm">visibility</span>
                 View My Bills
               </a>
             </div>
-            <div class="w-full md:w-1/3 h-48 bg-surface-container-lowest/5 rounded-xl border border-white/10 backdrop-blur-sm p-4 flex flex-col gap-3">
+            <div
+              class="w-full md:w-1/3 h-48 bg-surface-container-lowest/5 rounded-xl border border-white/10 backdrop-blur-sm p-4 flex flex-col gap-3">
               <div class="w-full h-10 bg-white/10 rounded flex items-center px-4 justify-between">
                 <div class="w-24 h-3 bg-white/20 rounded"></div>
                 <div class="w-12 h-3 bg-secondary-fixed/50 rounded"></div>
@@ -348,10 +448,12 @@
 
     <!-- ── Result Card ── -->
     <section id="result-section" class="hidden px-margin-mobile md:px-margin-desktop py-16 max-w-container-max mx-auto">
-      <div id="result-card" class="animate-result bg-surface-container-lowest rounded-2xl border border-surface-container shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] overflow-hidden">
+      <div id="result-card"
+        class="animate-result bg-surface-container-lowest rounded-2xl border border-surface-container shadow-[0_8px_32px_-8px_rgba(0,0,0,0.1)] overflow-hidden">
         <div class="bg-secondary px-8 py-6 flex items-center justify-between flex-wrap gap-4">
           <div>
-            <p class="font-label-sm text-label-sm text-on-secondary/70 uppercase tracking-widest mb-1">Extracted Bill</p>
+            <p class="font-label-sm text-label-sm text-on-secondary/70 uppercase tracking-widest mb-1">Extracted Bill
+            </p>
             <h2 id="result-vendor" class="font-headline-md text-headline-md text-on-secondary"></h2>
           </div>
           <div class="text-right">
@@ -366,10 +468,17 @@
             <table class="w-full text-left">
               <thead class="bg-surface-container">
                 <tr>
-                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Item</th>
-                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider hidden md:table-cell">Description</th>
-                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-center">Qty</th>
-                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">Price</th>
+                  <th class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">
+                    Item</th>
+                  <th
+                    class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider hidden md:table-cell">
+                    Description</th>
+                  <th
+                    class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-center">
+                    Qty</th>
+                  <th
+                    class="px-5 py-3 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider text-right">
+                    Price</th>
                 </tr>
               </thead>
               <tbody id="result-items" class="divide-y divide-surface-container"></tbody>
@@ -388,18 +497,14 @@
           </div>
 
           <div class="mt-8 flex flex-wrap gap-3">
-            <button
-              id="btn-scan-another"
-              onclick="resetUI()"
-              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
-            >
+            <button id="btn-scan-another" onclick="resetUI()"
+              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
               <span class="material-symbols-outlined text-base">add_a_photo</span>
               Scan Another
             </button>
             <button
               onclick="document.getElementById('my-bills-section').scrollIntoView({ behavior: 'smooth' }); loadBillHistory();"
-              class="inline-flex items-center gap-2 bg-surface-container text-on-surface px-5 py-2.5 rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors"
-            >
+              class="inline-flex items-center gap-2 bg-surface-container text-on-surface px-5 py-2.5 rounded-lg font-label-md text-label-md hover:bg-surface-container-high transition-colors">
               <span class="material-symbols-outlined text-base">history</span>
               View All Bills
             </button>
@@ -417,19 +522,13 @@
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button
-              id="btn-download-json"
-              onclick="downloadBillsJSON()"
-              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity"
-            >
+            <button id="btn-download-json" onclick="downloadBillsJSON()"
+              class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
               <span class="material-symbols-outlined text-base">download</span>
               <span class="hidden sm:inline">Download JSON</span>
             </button>
-            <button
-              id="btn-refresh-history"
-              onclick="loadBillHistory()"
-              class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-3 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors"
-            >
+            <button id="btn-refresh-history" onclick="loadBillHistory()"
+              class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-3 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
               <span class="material-symbols-outlined text-base">refresh</span>
               <span class="hidden sm:inline">Refresh</span>
             </button>
@@ -449,9 +548,10 @@
 
   <!-- ── Footer ── -->
   <footer class="bg-surface-container-low w-full mt-auto border-t border-surface-container">
-    <div class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-12 max-w-container-max mx-auto">
+    <div
+      class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-12 max-w-container-max mx-auto">
       <div class="flex items-center gap-2 mb-6 md:mb-0">
-        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover"/>
+        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover" />
         <div class="font-title-lg text-title-lg font-bold text-primary">The Bill Mate</div>
       </div>
       <div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0 font-label-md text-label-md text-on-surface-variant">
@@ -464,9 +564,11 @@
   </footer>
 
   <!-- ── Add Bill Manually Modal ── -->
-  <div id="add-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true" role="dialog">
+  <div id="add-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true"
+    role="dialog">
     <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeAddModal()"></div>
-    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+    <div
+      class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
 
       <!-- Modal Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container shrink-0">
@@ -486,8 +588,10 @@
         <div class="space-y-1.5">
           <label class="font-label-md text-label-md text-on-surface-variant" for="add-vendor">Vendor / Shop Name</label>
           <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
-            <input id="add-vendor" type="text" placeholder="e.g. Reliance Fresh" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <span
+              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
+            <input id="add-vendor" type="text" placeholder="e.g. Reliance Fresh"
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
         </div>
 
@@ -495,18 +599,15 @@
         <div class="space-y-1.5">
           <label class="font-label-md text-label-md text-on-surface-variant" for="add-date">Bill Date</label>
           <div class="relative">
-            <button
-              type="button"
+            <button type="button"
               onclick="document.getElementById('add-date-picker').showPicker ? document.getElementById('add-date-picker').showPicker() : document.getElementById('add-date-picker').click()"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors"
-            >
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors">
               <span class="material-symbols-outlined text-[18px]">calendar_today</span>
             </button>
             <input id="add-date" type="text" placeholder="DD-MM-YYYY"
-              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
             <input id="add-date-picker" type="date"
-              onchange="document.getElementById('add-date').value = toDDMMYYYY(this.value)"
-              class="sr-only"/>
+              onchange="document.getElementById('add-date').value = toDDMMYYYY(this.value)" class="sr-only" />
           </div>
         </div>
 
@@ -514,10 +615,8 @@
         <div class="space-y-2">
           <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
           <div id="add-items-list" class="space-y-2"></div>
-          <button
-            onclick="addNewItem()"
-            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm"
-          >
+          <button onclick="addNewItem()"
+            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm">
             <span class="material-symbols-outlined text-[16px]">add</span>
             Add another item
           </button>
@@ -527,14 +626,13 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="add-tax">Tax (₹)</label>
-            <input id="add-tax" type="number" min="0" step="0.01" placeholder="0.00"
-              oninput="recalcAddTotal()"
-              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <input id="add-tax" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalcAddTotal()"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="add-total">Total (₹)</label>
             <input id="add-total" type="number" min="0" step="0.01" placeholder="auto-calculated"
-              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all text-secondary font-semibold"/>
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all text-secondary font-semibold" />
           </div>
         </div>
 
@@ -542,10 +640,12 @@
 
       <!-- Modal Footer -->
       <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-container shrink-0">
-        <button onclick="closeAddModal()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+        <button onclick="closeAddModal()"
+          class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
           Cancel
         </button>
-        <button id="add-save-btn" onclick="saveNewBill()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
+        <button id="add-save-btn" onclick="saveNewBill()"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
           <span class="material-symbols-outlined text-[16px]">save</span>
           Save Bill
         </button>
@@ -554,14 +654,20 @@
   </div>
 
   <!-- ── Processing Modal ── -->
-  <div id="processing-modal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center" aria-modal="true" role="dialog">
+  <div id="processing-modal" class="hidden fixed inset-0 z-[9998] flex items-center justify-center" aria-modal="true"
+    role="dialog">
     <div class="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"></div>
-    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] p-10 flex flex-col items-center gap-6 min-w-[300px] max-w-sm mx-4">
+    <div
+      class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] p-10 flex flex-col items-center gap-6 min-w-[300px] max-w-sm mx-4">
       <div class="relative w-24 h-24 flex items-center justify-center">
-        <div class="spinner absolute inset-0 rounded-full border-[3px] border-secondary-container border-t-secondary"></div>
-        <div class="spinner-reverse absolute inset-2 rounded-full border-[2px] border-primary-fixed/20 border-t-primary-fixed"></div>
+        <div class="spinner absolute inset-0 rounded-full border-[3px] border-secondary-container border-t-secondary">
+        </div>
+        <div
+          class="spinner-reverse absolute inset-2 rounded-full border-[2px] border-primary-fixed/20 border-t-primary-fixed">
+        </div>
         <div class="absolute inset-0 flex items-center justify-center logo-pulse">
-          <img src="Logo.png" alt="Scanning Logo" class="w-14 h-14 rounded-full object-cover shadow-[0_4px_12px_rgba(0,0,0,0.15)]"/>
+          <img src="Logo.png" alt="Scanning Logo"
+            class="w-14 h-14 rounded-full object-cover shadow-[0_4px_12px_rgba(0,0,0,0.15)]" />
         </div>
       </div>
       <div class="text-center">
@@ -572,7 +678,8 @@
   </div>
 
   <!-- ── Camera Modal ── -->
-  <div id="camera-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center" aria-modal="true" role="dialog">
+  <div id="camera-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center" aria-modal="true"
+    role="dialog">
     <div class="absolute inset-0 bg-on-surface/70 backdrop-blur-md" onclick="closeCameraModal()"></div>
     <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
       <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container">
@@ -584,11 +691,13 @@
       <div class="relative bg-black">
         <video id="camera-video" autoplay playsinline class="w-full"></video>
         <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div class="w-56 h-72 border-2 border-secondary rounded-xl opacity-70 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]"></div>
+          <div class="w-56 h-72 border-2 border-secondary rounded-xl opacity-70 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]">
+          </div>
         </div>
       </div>
       <div class="flex items-center justify-center gap-4 px-6 py-5 bg-surface-container-low">
-        <button id="btn-capture" onclick="capturePhoto()" class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-lg hover:opacity-90 active:scale-95 transition-transform">
+        <button id="btn-capture" onclick="capturePhoto()"
+          class="w-16 h-16 rounded-full bg-secondary flex items-center justify-center text-on-secondary shadow-lg hover:opacity-90 active:scale-95 transition-transform">
           <span class="material-symbols-outlined text-3xl icon-fill">camera</span>
         </button>
       </div>
@@ -597,14 +706,17 @@
   </div>
 
   <!-- ── Edit Bill Modal ── -->
-  <div id="edit-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true" role="dialog">
+  <div id="edit-modal" class="hidden fixed inset-0 z-[9997] flex items-center justify-center" aria-modal="true"
+    role="dialog">
     <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeEditModal()"></div>
-    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+    <div
+      class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-lg mx-4 overflow-hidden max-h-[90vh] flex flex-col">
 
       <!-- Modal Header -->
       <div class="flex items-center justify-between px-6 py-4 border-b border-surface-container shrink-0">
         <div>
-          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-0.5">Editing Bill</p>
+          <p class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-widest mb-0.5">Editing Bill
+          </p>
           <p class="font-title-lg text-title-lg text-primary">Edit Bill Details</p>
         </div>
         <button onclick="closeEditModal()" class="text-on-surface-variant hover:text-primary transition-colors">
@@ -619,8 +731,10 @@
         <div class="space-y-1.5">
           <label class="font-label-md text-label-md text-on-surface-variant" for="edit-vendor">Vendor Name</label>
           <div class="relative">
-            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
-            <input id="edit-vendor" type="text" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <span
+              class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[18px]">store</span>
+            <input id="edit-vendor" type="text"
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
         </div>
 
@@ -628,18 +742,15 @@
         <div class="space-y-1.5">
           <label class="font-label-md text-label-md text-on-surface-variant" for="edit-date">Bill Date</label>
           <div class="relative">
-            <button
-              type="button"
+            <button type="button"
               onclick="document.getElementById('edit-date-picker').showPicker ? document.getElementById('edit-date-picker').showPicker() : document.getElementById('edit-date-picker').click()"
-              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors"
-            >
+              class="absolute left-3 top-1/2 -translate-y-1/2 text-outline hover:text-secondary transition-colors">
               <span class="material-symbols-outlined text-[18px]">calendar_today</span>
             </button>
             <input id="edit-date" type="text" placeholder="DD-MM-YYYY"
-              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+              class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
             <input id="edit-date-picker" type="date"
-              onchange="document.getElementById('edit-date').value = toDDMMYYYY(this.value)"
-              class="sr-only"/>
+              onchange="document.getElementById('edit-date').value = toDDMMYYYY(this.value)" class="sr-only" />
           </div>
         </div>
 
@@ -647,10 +758,8 @@
         <div class="space-y-2">
           <label class="font-label-md text-label-md text-on-surface-variant">Line Items</label>
           <div id="edit-items-list" class="space-y-2"></div>
-          <button
-            onclick="addEditItem()"
-            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm"
-          >
+          <button onclick="addEditItem()"
+            class="w-full flex items-center justify-center gap-1.5 py-2 rounded-lg border border-dashed border-outline-variant text-on-surface-variant hover:border-secondary hover:text-secondary hover:bg-secondary/5 transition-all font-label-sm text-label-sm">
             <span class="material-symbols-outlined text-[16px]">add</span>
             Add another item
           </button>
@@ -660,11 +769,13 @@
         <div class="grid grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="edit-tax">Tax (₹)</label>
-            <input id="edit-tax" type="number" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <input id="edit-tax" type="number" min="0" step="0.01"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="edit-total">Total (₹)</label>
-            <input id="edit-total" type="number" min="0" step="0.01" class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+            <input id="edit-total" type="number" min="0" step="0.01"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
         </div>
       </div>
@@ -672,22 +783,21 @@
       <!-- Modal Footer -->
       <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-surface-container shrink-0">
         <!-- Delete button on the left -->
-        <button
-          id="edit-delete-btn"
-          onclick="openDeleteConfirm()"
+        <button id="edit-delete-btn" onclick="openDeleteConfirm()"
           class="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-error/40 text-error font-label-md text-label-md hover:bg-error/10 transition-colors"
-          title="Delete this bill permanently"
-        >
+          title="Delete this bill permanently">
           <span class="material-symbols-outlined text-[16px]">delete</span>
           Delete
         </button>
 
         <!-- Cancel / Save on the right -->
         <div class="flex items-center gap-3">
-          <button onclick="closeEditModal()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+          <button onclick="closeEditModal()"
+            class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
             Cancel
           </button>
-          <button id="edit-save-btn" onclick="saveEditedBill()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
+          <button id="edit-save-btn" onclick="saveEditedBill()"
+            class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:opacity-90 transition-opacity">
             <span class="material-symbols-outlined text-[16px]">save</span>
             Save Changes
           </button>
@@ -697,9 +807,11 @@
   </div>
 
   <!-- ── Delete Confirmation Modal ── -->
-  <div id="delete-confirm-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center" aria-modal="true" role="dialog">
+  <div id="delete-confirm-modal" class="hidden fixed inset-0 z-[10000] flex items-center justify-center"
+    aria-modal="true" role="dialog">
     <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closeDeleteConfirm()"></div>
-    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.25)] w-full max-w-sm mx-4 overflow-hidden">
+    <div
+      class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.25)] w-full max-w-sm mx-4 overflow-hidden">
       <!-- Header -->
       <div class="flex items-center gap-3 px-6 pt-6 pb-4">
         <div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center shrink-0">
@@ -718,14 +830,12 @@
       </div>
       <!-- Footer -->
       <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-surface-container">
-        <button onclick="closeDeleteConfirm()" class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
+        <button onclick="closeDeleteConfirm()"
+          class="px-5 py-2.5 rounded-lg border border-outline-variant font-label-md text-label-md text-on-surface hover:bg-surface-container transition-colors">
           Cancel
         </button>
-        <button
-          id="confirm-delete-btn"
-          onclick="deleteBill()"
-          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:opacity-90 transition-opacity"
-        >
+        <button id="confirm-delete-btn" onclick="deleteBill()"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-error text-on-error font-label-md text-label-md hover:opacity-90 transition-opacity">
           <span class="material-symbols-outlined text-[16px]">delete_forever</span>
           Delete Bill
         </button>
@@ -734,21 +844,150 @@
   </div>
 
   <!-- ── Error Toast ── -->
-  <div id="error-toast" class="hidden fixed bottom-6 right-6 z-[99999] flex items-start gap-3 bg-on-surface text-inverse-on-surface px-5 py-4 rounded-xl shadow-2xl max-w-sm" role="alert">
+  <div id="error-toast"
+    class="hidden fixed bottom-6 right-6 z-[99999] flex items-start gap-3 bg-on-surface text-inverse-on-surface px-5 py-4 rounded-xl shadow-2xl max-w-sm"
+    role="alert">
     <span class="material-symbols-outlined text-error shrink-0 mt-0.5">error</span>
     <div>
       <p class="font-label-md text-label-md text-inverse-on-surface font-semibold mb-0.5">Something went wrong</p>
       <p id="error-toast-message" class="font-body-md text-body-md text-inverse-on-surface/80 text-sm"></p>
     </div>
-    <button onclick="hideToast()" class="text-inverse-on-surface/60 hover:text-inverse-on-surface transition-colors ml-2 shrink-0">
+    <button onclick="hideToast()"
+      class="text-inverse-on-surface/60 hover:text-inverse-on-surface transition-colors ml-2 shrink-0">
       <span class="material-symbols-outlined text-sm">close</span>
     </button>
   </div>
 
+  <!-- ── Auth Screen ── -->
+  <div id="auth-screen" class="fixed inset-0 z-[10001] flex items-center justify-center bg-surface">
+    <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-md mx-4 overflow-hidden flex flex-col p-8">
+      <div class="flex flex-col items-center mb-8">
+        <img src="Logo.png" alt="The Bill Mate" class="w-16 h-16 rounded-full object-cover mb-4 shadow-md"/>
+        <h2 class="font-headline-md text-headline-md text-primary text-center">Welcome to Bill Mate</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant text-center mt-2">Sign in to access your secure bills dashboard.</p>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="font-label-md text-label-md text-on-surface-variant" for="auth-email">Email</label>
+          <input id="auth-email" type="email" placeholder="you@example.com" class="w-full px-4 py-2.5 mt-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"/>
+        </div>
+        <div>
+          <label class="font-label-md text-label-md text-on-surface-variant" for="auth-password">Password</label>
+          <input id="auth-password" type="password" placeholder="••••••••" class="w-full px-4 py-2.5 mt-1.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all"
+            onkeydown="if(event.key==='Enter') loginUser()"
+          />
+        </div>
+        <div id="auth-error" class="hidden text-error font-label-sm text-sm px-1"></div>
+
+        <button id="btn-login" onclick="loginUser()" class="w-full bg-secondary text-on-secondary py-3 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity cursor-pointer">
+          Sign In
+        </button>
+        <button id="btn-signup" onclick="signupUser()" class="w-full bg-surface-container-low text-on-surface py-3 rounded-lg font-label-md text-label-md border border-outline-variant hover:bg-surface-container transition-colors cursor-pointer">
+          Create Account
+        </button>
+
+        <div class="flex items-center gap-3 my-2">
+          <div class="flex-1 h-px bg-outline-variant"></div>
+          <span class="font-label-sm text-label-sm text-on-surface-variant">OR</span>
+          <div class="flex-1 h-px bg-outline-variant"></div>
+        </div>
+
+        <button onclick="googleSignIn()" class="w-full flex items-center justify-center gap-3 bg-surface-container-lowest text-on-surface py-3 rounded-lg font-label-md text-label-md border border-outline-variant hover:bg-surface-container transition-colors cursor-pointer">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.97-6.19A23.9 23.9 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Continue with Google
+        </button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // ── Firebase Configuration ────────────────────────────────────────────
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRIXEk1QJaBj_2bNGLU9j6uA-WB1cDvFM",
+      authDomain: "bill-mate-67bb1.firebaseapp.com",
+      projectId: "bill-mate-67bb1",
+      storageBucket: "bill-mate-67bb1.firebasestorage.app",
+      messagingSenderId: "300859209704",
+      appId: "1:300859209704:web:717f552cc38082835a965d",
+      measurementId: "G-Q35P0TBVLH"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    let firebaseToken = null;
+
+    // ── Auth State Listener ──────────────────────────────────────────────
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        // User is signed in
+        firebaseToken = await user.getIdToken();
+        document.getElementById('auth-screen').classList.add('hidden');
+        document.getElementById('nav-user-info').classList.remove('hidden');
+        document.getElementById('nav-user-info').classList.add('flex');
+        document.getElementById('btn-nav-logout').classList.remove('hidden');
+        document.getElementById('btn-nav-logout').classList.add('flex');
+        document.getElementById('nav-user-email').textContent = user.email || 'User';
+        loadBillHistory();
+      } else {
+        // User is signed out
+        firebaseToken = null;
+        document.getElementById('auth-screen').classList.remove('hidden');
+        document.getElementById('nav-user-info').classList.add('hidden');
+        document.getElementById('nav-user-info').classList.remove('flex');
+        document.getElementById('btn-nav-logout').classList.add('hidden');
+        document.getElementById('btn-nav-logout').classList.remove('flex');
+      }
+    });
+
+    // ── Auth Functions ────────────────────────────────────────────────────
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error');
+      // Clean up Firebase error messages for readability
+      el.textContent = msg.replace('Firebase: ', '').replace(/\(auth\/.*\)\.?/, '').trim();
+      el.classList.remove('hidden');
+    }
+
+    async function loginUser() {
+      const email = document.getElementById('auth-email').value.trim();
+      const pass  = document.getElementById('auth-password').value;
+      if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+      try {
+        document.getElementById('auth-error').classList.add('hidden');
+        await firebase.auth().signInWithEmailAndPassword(email, pass);
+      } catch (e) { showAuthError(e.message); }
+    }
+
+    async function signupUser() {
+      const email = document.getElementById('auth-email').value.trim();
+      const pass  = document.getElementById('auth-password').value;
+      if (!email || !pass) { showAuthError('Please enter your email and password.'); return; }
+      if (pass.length < 6) { showAuthError('Password must be at least 6 characters.'); return; }
+      try {
+        document.getElementById('auth-error').classList.add('hidden');
+        await firebase.auth().createUserWithEmailAndPassword(email, pass);
+      } catch (e) { showAuthError(e.message); }
+    }
+
+    async function googleSignIn() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      try {
+        document.getElementById('auth-error').classList.add('hidden');
+        await firebase.auth().signInWithPopup(provider);
+      } catch (e) { showAuthError(e.message); }
+    }
+
+    async function logoutUser() {
+      await firebase.auth().signOut();
+    }
+
+    // ── Auth Headers helper ──────────────────────────────────────────────
+    function authHeaders(extra = {}) {
+      return { 'Authorization': `Bearer ${firebaseToken}`, ...extra };
+    }
+
     // ── State ─────────────────────────────────────────────────────────────
     let cameraStream = null;
-    let toastTimer   = null;
+    let toastTimer = null;
 
     // ── Processing modal ──────────────────────────────────────────────────
     function showProcessing() {
@@ -790,7 +1029,7 @@
     }
 
     function capturePhoto() {
-      const video  = document.getElementById('camera-video');
+      const video = document.getElementById('camera-video');
       const canvas = document.getElementById('camera-canvas');
 
       if (!video.videoWidth || !video.videoHeight) {
@@ -798,7 +1037,7 @@
         return;
       }
 
-      canvas.width  = video.videoWidth;
+      canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       canvas.getContext('2d').drawImage(video, 0, 0);
       closeCameraModal();
@@ -834,6 +1073,7 @@
       try {
         const response = await fetch("/upload-bill", {
           method: "POST",
+          headers: authHeaders(),
           body: formData
         });
 
@@ -842,7 +1082,7 @@
           try {
             const err = await response.json();
             if (err.detail) detail = typeof err.detail === 'string' ? err.detail : err.detail.error;
-          } catch (_) {}
+          } catch (_) { }
           throw new Error(detail);
         }
 
@@ -865,7 +1105,7 @@
     // ── Render result card ────────────────────────────────────────────────
     function renderResult(bill) {
       document.getElementById('result-vendor').textContent = bill.vendor_name || 'Unknown Vendor';
-      document.getElementById('result-date').textContent   = toDDMMYYYY(bill.date) || 'N/A';
+      document.getElementById('result-date').textContent = toDDMMYYYY(bill.date) || 'N/A';
 
       const tbody = document.getElementById('result-items');
       tbody.innerHTML = '';
@@ -887,10 +1127,10 @@
             <td class="px-5 py-3 font-body-md text-body-md text-on-surface">${escapeHtml(item.item_name)}</td>
             <td class="px-5 py-3 font-body-md text-body-md text-on-surface-variant hidden md:table-cell">
               ${desc
-                ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded-full text-xs font-medium">
+              ? `<span class="inline-flex items-center gap-1 bg-secondary-container/60 text-on-secondary-container px-2 py-0.5 rounded-full text-xs font-medium">
                     <span class="material-symbols-outlined text-[13px]">info</span>${desc}
                   </span>`
-                : '<span class="text-outline text-xs">—</span>'}
+              : '<span class="text-outline text-xs">—</span>'}
             </td>
             <td class="px-5 py-3 font-body-md text-body-md text-on-surface-variant text-center">${item.quantity ?? 1}</td>
             <td class="px-5 py-3 font-label-md text-label-md text-on-surface text-right">${formatCurrency(item.price)}</td>
@@ -899,7 +1139,7 @@
         });
       }
 
-      document.getElementById('result-tax').textContent   = formatCurrency(bill.tax          ?? 0);
+      document.getElementById('result-tax').textContent = formatCurrency(bill.tax ?? 0);
       document.getElementById('result-total').textContent = formatCurrency(bill.total_amount ?? 0);
 
       const section = document.getElementById('result-section');
@@ -916,11 +1156,14 @@
 
     // ── Load bill history ─────────────────────────────────────────────────
     async function loadBillHistory() {
-      const container  = document.getElementById('history-list');
+      const container = document.getElementById('history-list');
       const emptyState = document.getElementById('history-empty-state');
 
       try {
-        const response = await fetch('/bills');
+        const response = await fetch('/bills', { 
+          headers: authHeaders(),
+          cache: 'no-store'
+        });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
@@ -954,9 +1197,9 @@
       wrapper.className = 'animate-result bg-surface-container-lowest rounded-xl border border-surface-container shadow-[0_2px_8px_rgba(0,0,0,0.05)] overflow-hidden';
       wrapper.style.animationDelay = `${idx * 60}ms`;
 
-      const itemCount  = Array.isArray(bill.items) ? bill.items.length : 0;
+      const itemCount = Array.isArray(bill.items) ? bill.items.length : 0;
       const displayDate = toDDMMYYYY(bill.bill_date || bill.date) || 'No date';
-      const isManual   = bill.source === 'manual';
+      const isManual = bill.source === 'manual';
 
       wrapper.innerHTML = `
         <details class="group">
@@ -1008,8 +1251,8 @@
               </thead>
               <tbody class="divide-y divide-surface-container">
                 ${(bill.items || []).map(item => {
-                  const d = item.description ? escapeHtml(item.description) : '';
-                  return `
+        const d = item.description ? escapeHtml(item.description) : '';
+        return `
                   <tr>
                     <td class="py-2 pr-2">
                       <p class="font-body-md text-body-md text-on-surface leading-snug">${escapeHtml(item.item_name)}</p>
@@ -1018,7 +1261,7 @@
                     <td class="py-2 text-center text-on-surface-variant text-sm">${item.quantity ?? 1}</td>
                     <td class="py-2 text-right font-label-md text-label-md text-on-surface">${formatCurrency(item.price)}</td>
                   </tr>`;
-                }).join('')}
+      }).join('')}
               </tbody>
               <tfoot class="border-t border-outline-variant">
                 <tr class="text-on-surface-variant">
@@ -1041,13 +1284,13 @@
     function openAddModal() {
       // Reset form — generate today in local time as DD-MM-YYYY
       const _now = new Date();
-      const _dd  = String(_now.getDate()).padStart(2, '0');
-      const _mm  = String(_now.getMonth() + 1).padStart(2, '0');
+      const _dd = String(_now.getDate()).padStart(2, '0');
+      const _mm = String(_now.getMonth() + 1).padStart(2, '0');
       const _yyyy = _now.getFullYear();
       document.getElementById('add-vendor').value = '';
-      document.getElementById('add-date').value   = `${_dd}-${_mm}-${_yyyy}`;
-      document.getElementById('add-tax').value    = '';
-      document.getElementById('add-total').value  = '';
+      document.getElementById('add-date').value = `${_dd}-${_mm}-${_yyyy}`;
+      document.getElementById('add-tax').value = '';
+      document.getElementById('add-total').value = '';
       const list = document.getElementById('add-items-list');
       list.innerHTML = '';
       addNewItem(); // start with one blank row
@@ -1060,7 +1303,7 @@
 
     function addNewItem(item = {}) {
       const list = document.getElementById('add-items-list');
-      const row  = document.createElement('div');
+      const row = document.createElement('div');
       row.className = 'flex flex-col gap-1.5 p-3 rounded-lg border border-surface-container bg-surface-container-low';
       row.innerHTML = `
         <div class="flex gap-2 items-center">
@@ -1119,11 +1362,11 @@
       const rows = document.getElementById('add-items-list').children;
       let subtotal = 0;
       Array.from(rows).forEach(row => {
-        const qty   = parseFloat(row.querySelector('[data-field="quantity"]').value) || 1;
-        const price = parseFloat(row.querySelector('[data-field="price"]').value)    || 0;
+        const qty = parseFloat(row.querySelector('[data-field="quantity"]').value) || 1;
+        const price = parseFloat(row.querySelector('[data-field="price"]').value) || 0;
         subtotal += qty * price;
       });
-      const tax   = parseFloat(document.getElementById('add-tax').value) || 0;
+      const tax = parseFloat(document.getElementById('add-tax').value) || 0;
       document.getElementById('add-total').value = (subtotal + tax).toFixed(2);
     }
 
@@ -1135,24 +1378,24 @@
 
       const itemRows = document.getElementById('add-items-list').children;
       const items = Array.from(itemRows).map(row => ({
-        item_name:   row.querySelector('[data-field="item_name"]').value.trim(),
-        quantity:    parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
-        price:       parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+        item_name: row.querySelector('[data-field="item_name"]').value.trim(),
+        quantity: parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
+        price: parseFloat(row.querySelector('[data-field="price"]').value) || 0,
         description: row.querySelector('[data-field="description"]').value.trim() || null,
       })).filter(i => i.item_name); // skip blank-name rows
 
       const payload = {
-        vendor_name:  document.getElementById('add-vendor').value.trim() || null,
-        bill_date:    toDDMMYYYY(document.getElementById('add-date').value) || null,
+        vendor_name: document.getElementById('add-vendor').value.trim() || null,
+        bill_date: toDDMMYYYY(document.getElementById('add-date').value) || null,
         items,
-        tax:          parseFloat(document.getElementById('add-tax').value)   || 0,
+        tax: parseFloat(document.getElementById('add-tax').value) || 0,
         total_amount: parseFloat(document.getElementById('add-total').value) || 0,
       };
 
       try {
         const response = await fetch('/bills', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(payload)
         });
 
@@ -1169,7 +1412,7 @@
       } catch (err) {
         showError(err.message || 'Could not save bill. Please try again.');
         btn.innerHTML = originalHTML;
-        btn.disabled  = false;
+        btn.disabled = false;
       }
     }
 
@@ -1181,9 +1424,9 @@
 
       // Populate fields
       document.getElementById('edit-vendor').value = bill.vendor_name || '';
-      document.getElementById('edit-date').value   = toDDMMYYYY(bill.bill_date || bill.date || '');
-      document.getElementById('edit-tax').value    = bill.tax         || 0;
-      document.getElementById('edit-total').value  = bill.total_amount || 0;
+      document.getElementById('edit-date').value = toDDMMYYYY(bill.bill_date || bill.date || '');
+      document.getElementById('edit-tax').value = bill.tax || 0;
+      document.getElementById('edit-total').value = bill.total_amount || 0;
 
       // Populate items
       const list = document.getElementById('edit-items-list');
@@ -1200,7 +1443,7 @@
 
     function addEditItem(item = {}) {
       const list = document.getElementById('edit-items-list');
-      const row  = document.createElement('div');
+      const row = document.createElement('div');
       row.className = 'flex flex-col gap-1.5 p-3 rounded-lg border border-surface-container bg-surface-container-low';
       row.innerHTML = `
         <div class="flex gap-2 items-center">
@@ -1266,24 +1509,24 @@
       // Collect items from the list
       const itemRows = document.getElementById('edit-items-list').children;
       const items = Array.from(itemRows).map(row => ({
-        item_name:   row.querySelector('[data-field="item_name"]').value.trim(),
-        quantity:    parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
-        price:       parseFloat(row.querySelector('[data-field="price"]').value)    || 0,
+        item_name: row.querySelector('[data-field="item_name"]').value.trim(),
+        quantity: parseFloat(row.querySelector('[data-field="quantity"]').value) || 1,
+        price: parseFloat(row.querySelector('[data-field="price"]').value) || 0,
         description: row.querySelector('[data-field="description"]').value.trim() || null,
       }));
 
       const payload = {
-        vendor_name:  document.getElementById('edit-vendor').value.trim(),
-        bill_date:    toDDMMYYYY(document.getElementById('edit-date').value),
+        vendor_name: document.getElementById('edit-vendor').value.trim(),
+        bill_date: toDDMMYYYY(document.getElementById('edit-date').value),
         items,
-        tax:          parseFloat(document.getElementById('edit-tax').value)   || 0,
+        tax: parseFloat(document.getElementById('edit-tax').value) || 0,
         total_amount: parseFloat(document.getElementById('edit-total').value) || 0,
       };
 
       try {
         const response = await fetch(`/bills/${currentEditBillId}`, {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: authHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(payload)
         });
 
@@ -1298,7 +1541,7 @@
       } catch (err) {
         showError(err.message || 'Could not save changes. Please try again.');
         btn.innerHTML = originalHTML;
-        btn.disabled  = false;
+        btn.disabled = false;
       }
     }
 
@@ -1321,7 +1564,8 @@
 
       try {
         const response = await fetch(`/bills/${currentEditBillId}`, {
-          method: 'DELETE'
+          method: 'DELETE',
+          headers: authHeaders()
         });
 
         if (!response.ok) {
@@ -1349,14 +1593,17 @@
       btn.disabled = true;
 
       try {
-        const response = await fetch('/bills');
+        const response = await fetch('/bills', { 
+          headers: authHeaders(),
+          cache: 'no-store'
+        });
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         const bills = await response.json();
 
         const blob = new Blob([JSON.stringify(bills, null, 2)], { type: 'application/json' });
-        const url  = URL.createObjectURL(blob);
-        const a    = document.createElement('a');
-        a.href     = url;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
         a.download = `bill-history-${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a);
         a.click();
@@ -1366,7 +1613,7 @@
         showError('Could not download bill history. Please try again.');
       } finally {
         btn.innerHTML = originalHTML;
-        btn.disabled  = false;
+        btn.disabled = false;
       }
     }
 
@@ -1419,7 +1666,7 @@
 
     async function checkBackend() {
       try {
-        const res  = await fetch("/health");
+        const res = await fetch("/health");
         const data = await res.json();
         console.log("Backend status:", data.status);
       } catch {
@@ -1431,14 +1678,15 @@
     // Pings /health every 10 min while a browser tab is open,
     // complementing the backend self-ping as a double safety net.
     setInterval(async () => {
-      try { await fetch('/health'); } catch (_) {}
+      try { await fetch('/health'); } catch (_) { }
     }, 10 * 60 * 1000); // 10 minutes
 
     // ── Bootstrap ─────────────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded', async () => {
-      await loadBillHistory();
+      // loadBillHistory() is now triggered by onAuthStateChanged
       checkBackend();
     });
   </script>
 </body>
+
 </html>
