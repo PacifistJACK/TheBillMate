@@ -1737,6 +1737,7 @@
     function printBill(bill) {
       const w = window.open('', '_blank');
       const dateStr = toDDMMYYYY(bill.bill_date || bill.date) || 'No date';
+      const logoUrl = window.location.origin + '/Logo.png';
       const itemsHtml = (bill.items || []).map(i => `
         <tr>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;">${escapeHtml(i.item_name)} <br> <small style="color: #666;">${escapeHtml(i.description || '')}</small></td>
@@ -1751,7 +1752,7 @@
             <title>Receipt - ${escapeHtml(bill.vendor_name || 'Vendor')}</title>
             <style>
               body { font-family: system-ui, -apple-system, sans-serif; color: #1a1a1a; max-width: 800px; margin: 0 auto; padding: 40px; }
-              h1 { margin-bottom: 4px; font-size: 24px; color: #006a61; }
+              h1 { margin-bottom: 4px; font-size: 24px; color: #1a1a1a; }
               p { margin: 0; color: #555; }
               table { width: 100%; border-collapse: collapse; margin-top: 32px; font-size: 14px; }
               th { padding: 8px; border-bottom: 2px solid #1a1a1a; text-align: left; }
@@ -1760,7 +1761,10 @@
               .totals { margin-top: 24px; text-align: right; font-size: 14px; }
               .totals div { margin-bottom: 8px; }
               .totals .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #1a1a1a; padding-top: 8px; color: #006a61; }
+              .watermark { margin-top: 64px; text-align: center; font-size: 12px; color: #aaa; display: flex; align-items: center; justify-content: center; gap: 6px; }
+              .watermark img { width: 14px; height: 14px; border-radius: 50%; opacity: 0.7; }
               @media print {
+                @page { margin: 1cm; }
                 body { padding: 0; }
               }
             </style>
@@ -1786,6 +1790,11 @@
             <div class="totals">
               <div>Tax: <strong>${formatCurrency(bill.tax || 0)}</strong></div>
               <div class="grand-total">Total: ${formatCurrency(bill.total_amount || 0)}</div>
+            </div>
+
+            <div class="watermark">
+              <img src="${logoUrl}" alt="Logo" />
+              Generated securely by <strong>The Bill Mate</strong>
             </div>
           </body>
         </html>
