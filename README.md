@@ -76,4 +76,4 @@ It automatically extracts the vendor name, date, line items, taxes, and totals, 
    Open `http://localhost:8000` in your browser.
 
 ---
-*Created with ❤️ for seamless financial management.*
+
