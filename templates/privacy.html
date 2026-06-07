@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Privacy Policy - The Bill Mate</title>
+  <meta name="description" content="Privacy Policy for The Bill Mate. Learn how we securely handle, extract, and protect your financial data." />
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="icon" type="image/png" href="/Logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000000",
+            "secondary": "#006a61",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#45464d",
+            "surface-container": "#eceef0",
+            "surface-container-lowest": "#ffffff"
+          },
+          fontFamily: {
+            "display": ["Inter"],
+            "body": ["Inter"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+
+  <!-- ── Navbar ── -->
+  <nav class="bg-surface w-full top-0 sticky z-50 border-b border-surface-container shadow-sm">
+    <div class="flex justify-between items-center px-6 md:px-10 py-4 max-w-5xl mx-auto w-full">
+      <a href="/" class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="/Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover" />
+        <div class="text-[20px] font-bold text-primary">The Bill Mate</div>
+      </a>
+      <a href="/" class="text-[14px] font-medium text-secondary hover:underline">Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- ── Privacy Content ── -->
+  <main class="flex-grow w-full max-w-4xl mx-auto px-6 md:px-10 py-12 md:py-20">
+    <div class="bg-surface-container-lowest rounded-2xl p-8 md:p-12 shadow-sm border border-surface-container">
+      <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2">Privacy Policy</h1>
+      <p class="text-[14px] text-on-surface-variant mb-10">Last Updated: June 2026</p>
+
+      <div class="prose prose-sm md:prose-base prose-slate max-w-none text-on-surface-variant leading-relaxed space-y-6">
+        
+        <p>At <strong>The Bill Mate</strong>, we prioritize your privacy and data security above all else. This Privacy Policy explains how we collect, use, process, and protect your information when you use our platform to scan, extract, and manage your financial records.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">1. Information We Collect</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Account Information:</strong> When you register via Google or email, we collect basic profile details including your name, email address, and a unique user identifier (UID) provided by Firebase Authentication.</li>
+          <li><strong>Financial Document Data:</strong> When you upload or scan a receipt, bill, or invoice, we temporarily process the image to extract structured billing data (e.g., vendor name, items, tax, total).</li>
+          <li><strong>Stored Bill Records:</strong> We store the extracted text data (the JSON representation of your bills) in our secure MongoDB database so you can access your billing history at any time.</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">2. How We Use Your Information</h2>
+        <p>We strictly use your data to provide and improve the core functionality of The Bill Mate:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>To authenticate your identity and secure your personal dashboard.</li>
+          <li>To process document images using artificial intelligence for the sole purpose of extracting your structured data.</li>
+          <li>To display, organize, and calculate metrics regarding your financial history.</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">3. Data Processing and AI</h2>
+        <p>The Bill Mate leverages advanced multimodal AI (SambaNova AI) to extract text from your uploaded images. <strong>We do not use your personal financial data to train public AI models.</strong> Image processing is strictly transactional—once the text is extracted and returned to your dashboard, the raw image is not permanently retained on our servers.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">4. Data Storage and Security</h2>
+        <p>Your structured bill data is securely hosted on MongoDB Atlas, adhering to enterprise-grade encryption both in transit and at rest. Your authentication credentials and sessions are securely managed by Google Firebase. Our backend infrastructure enforce strict data isolation—meaning your records are fundamentally inaccessible to any other user.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">5. Third-Party Sharing</h2>
+        <p><strong>We do not sell, rent, or trade your personal or financial data.</strong> We share data only with essential infrastructure providers required to operate the service (e.g., Google Firebase for authentication, MongoDB for database hosting, and SambaNova for AI inference). These providers are bound by strict confidentiality and data protection agreements.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">6. Your Rights and Choices</h2>
+        <p>You retain absolute ownership of your data. At any time, you may:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Access, review, and export the billing data stored in your account.</li>
+          <li>Request the complete deletion of your account and all associated billing history from our servers.</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">7. Contact Us</h2>
+        <p>If you have questions, concerns, or requests regarding this Privacy Policy or your data security, please contact our support team. We are committed to absolute transparency regarding how we handle your finances.</p>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-surface-container-lowest border-t border-surface-container py-8 mt-auto">
+    <div class="max-w-5xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="/Logo.png" alt="The Bill Mate" class="w-6 h-6 rounded-full grayscale opacity-70" />
+        <span class="text-sm font-semibold text-on-surface-variant">The Bill Mate</span>
+      </div>
+      <div class="text-sm text-on-surface-variant">&copy; 2026 The Bill Mate. All rights reserved.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

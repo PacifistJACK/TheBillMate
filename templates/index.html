@@ -6,7 +6,7 @@
   <meta content="width=device-width, initial-scale=1.0" name="viewport" />
   <title>The Bill Mate - Manage your bills with effortless precision</title>
   <meta name="description"
-    content="Scan or upload any bill to instantly extract structured financial data using AI. No manual entry — just pure organisation powered by The Bill Mate." />
+    content="Leverage advanced AI to instantly scan, extract, and organise your financial documents. The Bill Mate transforms physical receipts into structured digital records." />
 
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
@@ -290,8 +290,8 @@
         Manage your bills with<br class="hidden md:block" /> effortless precision.
       </h1>
       <p class="font-body-lg text-body-lg text-on-surface-variant mb-12 max-w-2xl">
-        Scan or upload any bill to instantly extract details into structured data.
-        No more manual entry — just pure organisation.
+        Leverage advanced AI to instantly transform physical receipts into structured digital records. 
+        Eliminate manual data entry and streamline your financial organization.
       </p>
 
       <div id="scan-section" class="grid grid-cols-1 md:grid-cols-3 gap-gutter w-full max-w-4xl">
@@ -306,8 +306,7 @@
           </div>
           <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">
             Scan with Camera</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Use your device to capture
-            instantly</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Capture instantly using your device's camera</div>
         </button>
 
         <label id="btn-upload" for="file-upload-input"
@@ -321,8 +320,7 @@
           </div>
           <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload
             Image</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Select a file from your gallery
-          </div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Import existing receipts from your digital gallery</div>
         </label>
 
         <button id="btn-add-manual" onclick="openAddModal()"
@@ -336,7 +334,7 @@
           </div>
           <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors mx-auto">Add
             Manually</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Type in bill details by hand</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Manually input billing records for complete control</div>
         </button>
 
         <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)" />
@@ -373,9 +371,9 @@
     <section class="px-margin-mobile md:px-margin-desktop py-24 bg-surface-container-low" id="how-it-works">
       <div class="max-w-container-max mx-auto">
         <div class="text-center mb-16">
-          <h2 class="font-headline-lg text-headline-lg text-primary mb-4">Intelligent Document Processing</h2>
+          <h2 class="font-headline-lg text-headline-lg text-primary mb-4">Automated Intelligence for Your Finances</h2>
           <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
-            Snap or upload a bill — a multimodal AI model reads it and hands you clean, structured data in seconds.
+            Simply capture or upload a document, and our multimodal AI engine immediately extracts and organizes your critical financial data.
           </p>
         </div>
 
@@ -389,11 +387,9 @@
               class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-secondary border border-surface-dim">
               <span class="material-symbols-outlined">document_scanner</span>
             </div>
-            <h3 class="font-headline-md text-headline-md text-primary mb-3">Scan to JSON</h3>
+            <h3 class="font-headline-md text-headline-md text-primary mb-3">Automated Data Extraction</h3>
             <p class="font-body-md text-body-md text-on-surface-variant max-w-md">
-              Snap or upload a photo of any bill and our AI reads it like a human would — picking out the vendor, date,
-              every line item, quantity, price, tax, and total. It returns all of that as clean structured data
-              instantly, with zero manual entry from you.
+              Our advanced artificial intelligence reads your documents with human-like precision. It automatically identifies and extracts the vendor name, transaction date, individual line items, quantities, pricing, applicable taxes, and the final total—converting unstructured images into pristine, actionable data.
             </p>
           </div>
 
@@ -404,10 +400,9 @@
               class="w-12 h-12 rounded-lg bg-surface flex items-center justify-center mb-6 text-primary border border-surface-dim">
               <span class="material-symbols-outlined">lock</span>
             </div>
-            <h3 class="font-title-lg text-title-lg text-primary mb-3">Secure Storage</h3>
+            <h3 class="font-title-lg text-title-lg text-primary mb-3">Enterprise-Grade Security</h3>
             <p class="font-body-md text-body-md text-on-surface-variant">
-              Your financial data is stored securely in the cloud — tied to your account and never visible to others.
-              Privacy by design, always.
+              Your financial records are encrypted and stored securely in the cloud. Access is strictly authenticated and tied exclusively to your private account. We prioritize your privacy and data integrity above all else.
             </p>
           </div>
 
@@ -421,10 +416,9 @@
                 class="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center mb-6 text-primary-fixed border border-white/20">
                 <span class="material-symbols-outlined">history</span>
               </div>
-              <h3 class="font-headline-md text-headline-md text-on-primary mb-3">Complete History</h3>
+              <h3 class="font-headline-md text-headline-md text-on-primary mb-3">Comprehensive Financial Archive</h3>
               <p class="font-body-md text-body-md text-on-primary-container max-w-xl">
-                Never lose track of a payment again. Access a comprehensive archive of every bill you've ever processed,
-                categorised and filterable for absolute clarity.
+                Maintain a permanent, organized ledger of all your expenses. Our dashboard provides a unified view of your historical data, allowing you to seamlessly track, review, and print any past transaction with absolute clarity.
               </p>
               <a href="#my-bills"
                 class="inline-flex items-center gap-2 mt-6 bg-secondary text-on-secondary px-5 py-2.5 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
@@ -583,16 +577,16 @@
   </main>
 
   <!-- ── Footer ── -->
-  <footer class="bg-surface-container-low w-full mt-auto border-t border-surface-container">
+  <footer class="bg-surface-container-lowest border-t border-surface-container py-12 mt-24">
     <div
-      class="flex flex-col md:flex-row justify-between items-center px-margin-mobile md:px-margin-desktop py-12 max-w-container-max mx-auto">
-      <div class="flex items-center gap-2 mb-6 md:mb-0">
-        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover" />
-        <div class="font-title-lg text-title-lg font-bold text-primary">The Bill Mate</div>
+      class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+      <div class="flex items-center gap-3">
+        <img src="Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full grayscale opacity-60" />
+        <span class="font-title-lg text-title-lg font-bold text-on-surface-variant">The Bill Mate</span>
       </div>
-      <div class="flex flex-wrap justify-center gap-6 mb-6 md:mb-0 font-label-md text-label-md text-on-surface-variant">
-        <a class="hover:text-primary transition-colors" href="#">Privacy Policy</a>
-        <a class="hover:text-primary transition-colors" href="#">Terms of Service</a>
+      <div class="flex flex-wrap justify-center gap-6 font-label-md text-label-md text-on-surface-variant">
+        <a class="hover:text-primary transition-colors" href="/privacy">Privacy Policy</a>
+        <a class="hover:text-primary transition-colors" href="/terms">Terms of Service</a>
         <a class="hover:text-primary transition-colors" href="#">Contact Support</a>
       </div>
       <div class="font-label-md text-label-md text-on-surface-variant">© 2026 The Bill Mate. All rights reserved.</div>
@@ -937,6 +931,12 @@
           <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59a14.5 14.5 0 0 1 0-9.18l-7.97-6.19A23.9 23.9 0 0 0 0 24c0 3.77.9 7.35 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
           Continue with Google
         </button>
+        
+        <p class="text-center font-body-md text-[12px] text-on-surface-variant mt-4 leading-relaxed">
+          By signing in or creating an account, you agree to our <br />
+          <a href="/terms" class="text-secondary hover:underline">Terms of Service</a> and 
+          <a href="/privacy" class="text-secondary hover:underline">Privacy Policy</a>.
+        </p>
       </div>
     </div>
   </div>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html class="scroll-smooth" lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <title>Terms of Service - The Bill Mate</title>
+  <meta name="description" content="Terms of Service for The Bill Mate. Read the rules and guidelines for using our financial extraction tool." />
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link rel="icon" type="image/png" href="/Logo.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            "primary": "#000000",
+            "secondary": "#006a61",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e",
+            "on-surface-variant": "#45464d",
+            "surface-container": "#eceef0",
+            "surface-container-lowest": "#ffffff"
+          },
+          fontFamily: {
+            "display": ["Inter"],
+            "body": ["Inter"]
+          }
+        }
+      }
+    };
+  </script>
+</head>
+
+<body class="bg-surface text-on-surface font-body min-h-screen flex flex-col">
+
+  <!-- ── Navbar ── -->
+  <nav class="bg-surface w-full top-0 sticky z-50 border-b border-surface-container shadow-sm">
+    <div class="flex justify-between items-center px-6 md:px-10 py-4 max-w-5xl mx-auto w-full">
+      <a href="/" class="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity">
+        <img src="/Logo.png" alt="The Bill Mate" class="w-8 h-8 rounded-full object-cover" />
+        <div class="text-[20px] font-bold text-primary">The Bill Mate</div>
+      </a>
+      <a href="/" class="text-[14px] font-medium text-secondary hover:underline">Back to Home</a>
+    </div>
+  </nav>
+
+  <!-- ── Terms Content ── -->
+  <main class="flex-grow w-full max-w-4xl mx-auto px-6 md:px-10 py-12 md:py-20">
+    <div class="bg-surface-container-lowest rounded-2xl p-8 md:p-12 shadow-sm border border-surface-container">
+      <h1 class="text-3xl md:text-4xl font-bold text-primary mb-2">Terms of Service</h1>
+      <p class="text-[14px] text-on-surface-variant mb-10">Last Updated: June 2026</p>
+
+      <div class="prose prose-sm md:prose-base prose-slate max-w-none text-on-surface-variant leading-relaxed space-y-6">
+        
+        <p>Welcome to <strong>The Bill Mate</strong>. By accessing or using our platform, website, or services (collectively, the "Service"), you agree to be bound by these Terms of Service. If you do not agree to these terms, please do not use our Service.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">1. Service Description</h2>
+        <p>The Bill Mate provides AI-powered financial document processing tools that allow users to scan, extract, organize, and store billing and receipt data. We utilize multimodal artificial intelligence to automate manual data entry. The Service is provided "as is" and we continually update and refine its capabilities.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">2. Account Responsibilities</h2>
+        <ul class="list-disc pl-5 space-y-2">
+          <li><strong>Authentication:</strong> You must create an account via Google or email to access the core features. You are responsible for safeguarding your login credentials.</li>
+          <li><strong>Accuracy:</strong> While our AI strives for the highest possible accuracy, optical character recognition is not infallible. You are ultimately responsible for verifying the accuracy of the extracted JSON data before relying on it for accounting, tax, or legal purposes.</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">3. User Conduct and Content</h2>
+        <p>When using The Bill Mate, you agree not to:</p>
+        <ul class="list-disc pl-5 space-y-2">
+          <li>Upload illegal, fraudulent, or malicious documents.</li>
+          <li>Attempt to reverse-engineer, exploit, or bypass the security of our application or APIs.</li>
+          <li>Use the service in a manner that artificially inflates AI inference costs (e.g., automated scraping, bulk spam uploading). We reserve the right to rate-limit or suspend accounts engaged in abusive API usage.</li>
+        </ul>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">4. Intellectual Property</h2>
+        <p>All intellectual property rights in the Service—including the underlying software, UI/UX designs, algorithms, and branding elements—are owned by The Bill Mate. The billing data and receipts you upload remain entirely your property.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">5. Disclaimer of Warranties</h2>
+        <p>The Service is provided on an "as is" and "as available" basis without any warranties, either express or implied. The Bill Mate does not warrant that the service will be uninterrupted, error-free, or completely secure. We specifically disclaim any liability for financial discrepancies arising from AI extraction errors.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">6. Limitation of Liability</h2>
+        <p>In no event shall The Bill Mate or its operators be liable for any indirect, incidental, special, or consequential damages arising out of or in connection with your use of the Service, including but not limited to loss of data, loss of revenue, or accounting errors.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">7. Termination</h2>
+        <p>We reserve the right to suspend or terminate your account at our sole discretion, without prior notice, if we determine you have violated these Terms of Service or engaged in fraudulent activity.</p>
+
+        <h2 class="text-xl font-bold text-primary mt-8 mb-4">8. Changes to Terms</h2>
+        <p>We may modify these Terms at any time. We will notify users of significant changes by updating the "Last Updated" date at the top of this document. Continued use of the Service after changes are published constitutes your acceptance of the revised Terms.</p>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-surface-container-lowest border-t border-surface-container py-8 mt-auto">
+    <div class="max-w-5xl mx-auto px-6 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <img src="/Logo.png" alt="The Bill Mate" class="w-6 h-6 rounded-full grayscale opacity-70" />
+        <span class="text-sm font-semibold text-on-surface-variant">The Bill Mate</span>
+      </div>
+      <div class="text-sm text-on-surface-variant">&copy; 2026 The Bill Mate. All rights reserved.</div>
+    </div>
+  </footer>
+
+</body>
+</html>

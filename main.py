@@ -88,7 +88,7 @@ client_samba = SambaNova(
     base_url=SAMBANOVA_BASE_URL,
 )
 
-MODEL = "gemma-3-12b-it"
+MODEL = "gemma-4-31B-it"
 
 # ─────────────────────────────
 # Allowed image types
@@ -222,6 +222,24 @@ def root():
     """Serve the main dashboard directly."""
     html_path = os.path.join(os.path.dirname(__file__), "templates", "index.html")
     return FileResponse(html_path)
+
+
+@app.get("/privacy", response_class=HTMLResponse)
+def privacy_policy():
+    """Serve the privacy policy page."""
+    html_path = os.path.join(os.path.dirname(__file__), "templates", "privacy.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    raise HTTPException(status_code=404, detail="Privacy Policy not found")
+
+
+@app.get("/terms", response_class=HTMLResponse)
+def terms_of_service():
+    """Serve the terms of service page."""
+    html_path = os.path.join(os.path.dirname(__file__), "templates", "terms.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    raise HTTPException(status_code=404, detail="Terms of Service not found")
 
 
 @app.get("/Logo.png")
