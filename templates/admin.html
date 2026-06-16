@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Portal - The Bill Mate</title>
+  
+  <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+  
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+
+  <style>
+    body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+    .material-symbols-outlined { vertical-align: middle; }
+    .loader {
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #10b981;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body class="text-gray-800">
+
+  <!-- Admin Login Screen (Fallback if not logged in) -->
+  <div id="login-screen" class="fixed inset-0 bg-gray-100 z-50 flex items-center justify-center hidden">
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full text-center">
+      <div class="mb-6">
+        <span class="material-symbols-outlined text-5xl text-blue-600">admin_panel_settings</span>
+        <h2 class="text-2xl font-bold mt-2">Admin Portal</h2>
+        <p class="text-sm text-gray-500 mt-1">Please log in via the main app to access the admin portal.</p>
+      </div>
+      <a href="/" class="w-full block bg-blue-600 text-white py-2.5 rounded-lg font-medium hover:bg-blue-700 transition">Go to App Login</a>
+    </div>
+  </div>
+
+  <!-- Main Dashboard -->
+  <div id="dashboard" class="min-h-screen hidden flex-col">
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center shadow-sm">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-3xl text-indigo-600">shield_person</span>
+        <h1 class="text-xl font-bold text-gray-900">Bill Mate Admin</h1>
+      </div>
+      <div class="flex items-center gap-4">
+        <span id="admin-email" class="text-sm font-medium text-gray-600"></span>
+        <button onclick="logoutAdmin()" class="flex items-center gap-1 text-sm text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg transition">
+          <span class="material-symbols-outlined text-[18px]">logout</span> Logout
+        </button>
+      </div>
+    </nav>
+
+    <!-- Content -->
+    <main class="flex-grow p-6 max-w-6xl mx-auto w-full">
+      
+      <!-- Metrics -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+            <span class="material-symbols-outlined">group</span>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Total Users</p>
+            <p id="metric-users" class="text-2xl font-bold text-gray-900">-</p>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
+            <span class="material-symbols-outlined">workspace_premium</span>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Pro Subscribers</p>
+            <p id="metric-pro" class="text-2xl font-bold text-gray-900">-</p>
+          </div>
+        </div>
+        
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
+          <div class="w-12 h-12 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 font-medium">Scans This Month</p>
+            <p id="metric-scans" class="text-2xl font-bold text-gray-900">-</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users Table -->
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
+          <h2 class="text-lg font-bold text-gray-800">User Management</h2>
+          <button onclick="loadUsers()" class="flex items-center gap-1 text-sm text-indigo-600 hover:bg-indigo-50 px-3 py-1.5 rounded border border-indigo-200 transition">
+            <span class="material-symbols-outlined text-[18px]">refresh</span> Refresh
+          </button>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-sm">
+            <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+              <tr>
+                <th class="px-6 py-3 font-semibold">User / Email</th>
+                <th class="px-6 py-3 font-semibold text-center">Role</th>
+                <th class="px-6 py-3 font-semibold text-center">Plan</th>
+                <th class="px-6 py-3 font-semibold text-center">Scans (Month)</th>
+                <th class="px-6 py-3 font-semibold text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="users-table-body" class="divide-y divide-gray-200">
+              <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                  <div class="flex flex-col items-center justify-center">
+                    <div class="loader mb-4"></div>
+                    Loading users...
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Error Toast -->
+  <div id="toast" class="fixed bottom-6 right-6 bg-red-600 text-white px-5 py-3 rounded shadow-lg transform transition-transform translate-y-24 opacity-0 flex items-center gap-2 z-[9999]">
+    <span class="material-symbols-outlined text-lg">error</span>
+    <span id="toast-msg" class="text-sm font-medium"></span>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBRIXEk1QJaBj_2bNGLU9j6uA-WB1cDvFM",
+      authDomain: "bill-mate-67bb1.firebaseapp.com",
+      projectId: "bill-mate-67bb1",
+      storageBucket: "bill-mate-67bb1.firebasestorage.app",
+      messagingSenderId: "300859209704",
+      appId: "1:300859209704:web:717f552cc38082835a965d",
+      measurementId: "G-Q35P0TBVLH"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    let authToken = null;
+
+    firebase.auth().onAuthStateChanged(async (user) => {
+      if (user) {
+        authToken = await user.getIdToken();
+        document.getElementById('admin-email').textContent = user.email;
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('flex');
+        loadUsers();
+      } else {
+        authToken = null;
+        document.getElementById('login-screen').classList.remove('hidden');
+        document.getElementById('dashboard').classList.add('hidden');
+        document.getElementById('dashboard').classList.remove('flex');
+      }
+    });
+
+    async function logoutAdmin() {
+      await firebase.auth().signOut();
+    }
+
+    function showToast(msg, isError = true) {
+      const toast = document.getElementById('toast');
+      toast.className = `fixed bottom-6 right-6 ${isError ? 'bg-red-600' : 'bg-emerald-600'} text-white px-5 py-3 rounded shadow-lg transform transition-all flex items-center gap-2 z-[9999]`;
+      toast.innerHTML = `<span class="material-symbols-outlined text-lg">${isError ? 'error' : 'check_circle'}</span><span class="text-sm font-medium">${msg}</span>`;
+      
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(24px)';
+      }, 4000);
+    }
+
+    async function loadUsers() {
+      try {
+        const response = await fetch('/api/admin/users', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('login-screen').innerHTML = `
+              <div class="bg-white p-8 rounded-xl shadow-lg max-w-sm w-full text-center">
+                <span class="material-symbols-outlined text-5xl text-red-600">block</span>
+                <h2 class="text-2xl font-bold mt-2 text-gray-900">Access Denied</h2>
+                <p class="text-sm text-gray-500 mt-2">You do not have administrative privileges. Contact the owner.</p>
+                <button onclick="logoutAdmin()" class="mt-6 w-full bg-gray-100 text-gray-700 py-2.5 rounded-lg font-medium hover:bg-gray-200 transition">Logout</button>
+              </div>`;
+            document.getElementById('dashboard').classList.add('hidden');
+            return;
+          }
+          throw new Error('Failed to load users');
+        }
+
+        const users = await response.json();
+        renderTable(users);
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+
+    function renderTable(users) {
+      const tbody = document.getElementById('users-table-body');
+      tbody.innerHTML = '';
+      
+      let proCount = 0;
+      let totalScans = 0;
+
+      users.forEach(user => {
+        if (user.is_pro) proCount++;
+        totalScans += user.scan_count;
+
+        const isPro = user.is_pro;
+        const isAdmin = user.role === 'admin';
+        
+        const badgePro = isPro 
+          ? '<span class="px-2.5 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-medium">Pro</span>'
+          : '<span class="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">Free</span>';
+
+        const badgeRole = isAdmin
+          ? '<span class="px-2.5 py-1 bg-indigo-100 text-indigo-800 rounded-full text-xs font-medium">Admin</span>'
+          : '<span class="px-2.5 py-1 bg-gray-100 text-gray-600 rounded-full text-xs font-medium">User</span>';
+
+        const actionBtn = isPro
+          ? `<button onclick="togglePro('${user.id}', false)" class="text-sm font-medium text-red-600 hover:text-red-800 hover:underline">Revoke Pro</button>`
+          : `<button onclick="togglePro('${user.id}', true)" class="text-sm font-medium text-emerald-600 hover:text-emerald-800 hover:underline">Grant Pro</button>`;
+
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50 transition-colors';
+        row.innerHTML = `
+          <td class="px-6 py-4 whitespace-nowrap">
+            <div class="font-medium text-gray-900">${user.name || 'Unknown User'}</div>
+            <div class="text-xs text-gray-500">${user.email}</div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">${badgeRole}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center">${badgePro}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-center font-medium">${user.scan_count}</td>
+          <td class="px-6 py-4 whitespace-nowrap text-right">
+            ${actionBtn}
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      if (users.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="px-6 py-8 text-center text-gray-500">No users found.</td></tr>';
+      }
+
+      // Update metrics
+      document.getElementById('metric-users').textContent = users.length;
+      document.getElementById('metric-pro').textContent = proCount;
+      document.getElementById('metric-scans').textContent = totalScans;
+    }
+
+    async function togglePro(uid, grant) {
+      if (!confirm(`Are you sure you want to ${grant ? 'GRANT' : 'REVOKE'} Pro status for this user?`)) return;
+      
+      try {
+        const endpoint = grant ? `/api/admin/users/${uid}/grant-pro` : `/api/admin/users/${uid}/revoke-pro`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (!res.ok) throw new Error('Action failed');
+        
+        showToast(`Successfully ${grant ? 'granted' : 'revoked'} Pro status.`, false);
+        loadUsers(); // Refresh table
+      } catch (err) {
+        showToast(err.message);
+      }
+    }
+  </script>
+</body>
+</html>

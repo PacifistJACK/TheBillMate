@@ -17,6 +17,7 @@ import uuid
 import urllib.request
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
+import stripe
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,6 +36,10 @@ MONGO_URI           = os.environ.get("MONGO_URI", "")
 RENDER_EXTERNAL_URL = os.environ.get("RENDER_EXTERNAL_URL", "")  # auto-set by Render
 FIREBASE_CREDS_PATH = os.environ.get("FIREBASE_CREDS_PATH", "")
 FIREBASE_CREDS_JSON = os.environ.get("FIREBASE_SERVICE_ACCOUNT_JSON", "")
+STRIPE_API_KEY      = os.environ.get("STRIPE_API_KEY", "")
+STRIPE_WEBHOOK_SECRET = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+if STRIPE_API_KEY:
+    stripe.api_key = STRIPE_API_KEY
 
 # ─────────────────────────────
 # Firebase Admin SDK
@@ -80,6 +85,14 @@ async def get_current_user(
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid or expired authentication token.")
 
+
+async def get_current_admin(user: dict = Depends(get_current_user)) -> dict:
+    """Check if the current user has the admin role in MongoDB."""
+    user_doc = await users_collection.find_one({"_id": user["uid"]})
+    if not user_doc or user_doc.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required.")
+    return user
+
 # ─────────────────────────────
 # SambaNova client
 # ─────────────────────────────
@@ -108,6 +121,7 @@ MAX_FILE_SIZE_MB = 10
 # ─────────────────────────────
 mongo_client: AsyncIOMotorClient | None = None
 bills_collection = None
+users_collection = None
 
 
 # ─────────────────────────────
@@ -132,7 +146,7 @@ async def _keepalive_loop(url: str) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Connect to MongoDB Atlas on startup; disconnect on shutdown."""
-    global mongo_client, bills_collection
+    global mongo_client, bills_collection, users_collection
 
     if not MONGO_URI:
         raise RuntimeError(
@@ -143,6 +157,7 @@ async def lifespan(app: FastAPI):
     mongo_client = AsyncIOMotorClient(MONGO_URI)
     db = mongo_client["billmate"]
     bills_collection = db["bills"]
+    users_collection = db["users"]
 
     # Ensure index on created_at for efficient sorting
     await bills_collection.create_index([("created_at", DESCENDING)])
@@ -266,6 +281,165 @@ async def health():
 
 
 # ─────────────────────────────
+# Subscription endpoints
+# ─────────────────────────────
+async def get_user_subscription_info(user: dict):
+    """Fetch user subscription info and current month scan count."""
+    uid = user["uid"]
+    email = user.get("email")
+    name = user.get("name") or user.get("displayName")
+    
+    user_doc = await users_collection.find_one({"_id": uid})
+    if not user_doc:
+        user_doc = {"_id": uid, "is_pro": False, "email": email, "name": name, "role": "user"}
+        await users_collection.insert_one(user_doc)
+    else:
+        updates = {}
+        if email and user_doc.get("email") != email:
+            updates["email"] = email
+        if name and user_doc.get("name") != name:
+            updates["name"] = name
+        if updates:
+            await users_collection.update_one({"_id": uid}, {"$set": updates})
+
+    is_pro = user_doc.get("is_pro", False)
+    
+    # Calculate scans this month
+    now = datetime.now(timezone.utc)
+    start_of_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc).isoformat()
+    
+    scan_count = await bills_collection.count_documents({
+        "user_id": uid,
+        "created_at": {"$gte": start_of_month}
+    })
+    
+    scan_limit = 5
+    return {
+        "is_pro": is_pro,
+        "scan_count": scan_count,
+        "scan_limit": scan_limit,
+        "can_scan": is_pro or scan_count < scan_limit
+    }
+
+
+@app.get("/user-status")
+async def user_status(user: dict = Depends(get_current_user)):
+    return await get_user_subscription_info(user)
+
+
+@app.post("/create-checkout-session")
+async def create_checkout_session(request: Request, user: dict = Depends(get_current_user)):
+    if not STRIPE_API_KEY:
+        raise HTTPException(status_code=500, detail="Stripe is not configured on the server.")
+    try:
+        origin = request.headers.get('origin', 'http://localhost:8000')
+        session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{
+                'price_data': {
+                    'currency': 'inr',
+                    'product_data': {
+                        'name': 'Bill Mate Pro Subscription',
+                    },
+                    'unit_amount': 9900,
+                    'recurring': {
+                        'interval': 'month',
+                    },
+                },
+                'quantity': 1,
+            }],
+            mode='subscription',
+            success_url=f"{origin}/?success=true",
+            cancel_url=f"{origin}/?canceled=true",
+            client_reference_id=user["uid"],
+        )
+        return {"url": session.url}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/webhook")
+async def stripe_webhook(request: Request):
+    payload = await request.body()
+    sig_header = request.headers.get("stripe-signature", "")
+
+    try:
+        event = stripe.Webhook.construct_event(
+            payload, sig_header, STRIPE_WEBHOOK_SECRET
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail="Invalid payload")
+    except stripe.error.SignatureVerificationError as e:
+        raise HTTPException(status_code=400, detail="Invalid signature")
+
+    if event["type"] == "checkout.session.completed":
+        session = event["data"]["object"]
+        uid = session.get("client_reference_id")
+        if uid:
+            await users_collection.update_one(
+                {"_id": uid},
+                {"$set": {"is_pro": True, "stripe_customer_id": session.get("customer")}},
+                upsert=True
+            )
+    elif event["type"] == "customer.subscription.deleted":
+        subscription = event["data"]["object"]
+        customer_id = subscription.get("customer")
+        if customer_id:
+            await users_collection.update_one(
+                {"stripe_customer_id": customer_id},
+                {"$set": {"is_pro": False}}
+            )
+
+    return {"status": "success"}
+
+# ─────────────────────────────
+# Admin Endpoints
+# ─────────────────────────────
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_portal():
+    html_path = os.path.join(os.path.dirname(__file__), "templates", "admin.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
+    raise HTTPException(status_code=404, detail="Admin Portal not found")
+
+@app.get("/api/admin/users")
+async def get_all_users(admin: dict = Depends(get_current_admin)):
+    cursor = users_collection.find()
+    users = []
+    async for doc in cursor:
+        uid = doc["_id"]
+        # Calculate scans this month
+        now = datetime.now(timezone.utc)
+        start_of_month = datetime(now.year, now.month, 1, tzinfo=timezone.utc).isoformat()
+        scan_count = await bills_collection.count_documents({
+            "user_id": uid,
+            "created_at": {"$gte": start_of_month}
+        })
+        
+        users.append({
+            "id": uid,
+            "email": doc.get("email", "Unknown"),
+            "name": doc.get("name", "Unknown"),
+            "is_pro": doc.get("is_pro", False),
+            "role": doc.get("role", "user"),
+            "scan_count": scan_count
+        })
+    return users
+
+@app.post("/api/admin/users/{uid}/grant-pro")
+async def grant_pro(uid: str, admin: dict = Depends(get_current_admin)):
+    result = await users_collection.update_one({"_id": uid}, {"$set": {"is_pro": True}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"success": True}
+
+@app.post("/api/admin/users/{uid}/revoke-pro")
+async def revoke_pro(uid: str, admin: dict = Depends(get_current_admin)):
+    result = await users_collection.update_one({"_id": uid}, {"$set": {"is_pro": False}})
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"success": True}
+# ─────────────────────────────
 # GET /bills  — read from MongoDB
 # ─────────────────────────────
 @app.get("/bills")
@@ -282,6 +456,10 @@ async def get_bills(user: dict = Depends(get_current_user)):
 @app.post("/bills")
 async def create_bill(request: Request, user: dict = Depends(get_current_user)):
     """Save a manually entered bill directly to MongoDB Atlas."""
+    info = await get_user_subscription_info(user)
+    if not info["can_scan"]:
+        raise HTTPException(status_code=403, detail="Free limit reached. Please upgrade to Pro.")
+
     try:
         body = await request.json()
     except Exception:
@@ -338,6 +516,9 @@ async def patch_bill(bill_id: str, request: Request, user: dict = Depends(get_cu
 # ─────────────────────────────
 @app.post("/upload-bill")
 async def upload_bill(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    info = await get_user_subscription_info(user)
+    if not info["can_scan"]:
+        raise HTTPException(status_code=403, detail="Free limit reached. Please upgrade to Pro.")
 
     # 1. Validate file type
     content_type = file.content_type or ""

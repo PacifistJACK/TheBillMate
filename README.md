@@ -30,19 +30,20 @@ It automatically extracts the vendor name, date, line items, taxes, and totals, 
 
 ## 📸 Application Showcase
 
-> **Note for Developer:** Replace the placeholder links below with actual screenshots of your app by dragging and dropping images directly into GitHub!
-
 ### 1. Scanning Area
 *The intuitive interface for capturing receipts via webcam or file upload.*
-`![<img width="1901" height="935" alt="Screenshot 2026-06-07 160426" src="https://github.com/user-attachments/assets/8baf65d9-207c-4083-8369-a731d2e911f0" />]`
+
+<img width="100%" alt="Scanning Area Screenshot" src="https://github.com/user-attachments/assets/8baf65d9-207c-4083-8369-a731d2e911f0" />
 
 ### 2. The Dashboard
 *Your financial metrics at a glance, calculated dynamically.*
 
+<!-- Paste your Dashboard screenshot here! -->
+
 ### 3. Bill History Archive
 *The complete ledger of every receipt scanned and digitized.*
-`![History Screenshot](<img width="1901" height="875" alt="Screenshot 2026-06-07 160459" src="https://github.com/user-attachments/assets/e6ec476e-e62d-4826-af22-b4184ba85207" />
-)`
+
+<img width="100%" alt="History Screenshot" src="https://github.com/user-attachments/assets/e6ec476e-e62d-4826-af22-b4184ba85207" />
 
 ---
 

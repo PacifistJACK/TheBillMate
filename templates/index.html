@@ -239,6 +239,57 @@
       animation: animSpin 0.8s linear infinite;
       display: inline-block;
     }
+
+    /* ── Pro Badge & Banner ── */
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 8px rgba(255, 215, 0, 0.4), 0 0 16px rgba(255, 165, 0, 0.2); }
+      50% { box-shadow: 0 0 16px rgba(255, 215, 0, 0.7), 0 0 32px rgba(255, 165, 0, 0.4); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-3px); }
+    }
+
+    .pro-badge {
+      background: linear-gradient(135deg, #f59e0b, #f97316, #ef4444, #f59e0b);
+      background-size: 300% 300%;
+      animation: shimmer 3s linear infinite, glow 2s ease-in-out infinite;
+    }
+
+    .pro-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #0f172a 50%, #1e293b 70%, #0f172a 100%);
+      background-size: 200% 200%;
+      animation: shimmer 6s linear infinite;
+    }
+
+    .pro-banner::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.05), transparent);
+      background-size: 200% 100%;
+      animation: shimmer 3s linear infinite;
+    }
+
+    .pro-crown {
+      animation: float 3s ease-in-out infinite;
+      filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.6));
+    }
+
+    .pro-text-gradient {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b, #fbbf24, #fcd34d, #fbbf24);
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 3s linear infinite;
+    }
   </style>
 </head>
 
@@ -262,7 +313,26 @@
           Bills</a>
       </div>
 
-      <div class="relative flex items-center">
+      <div class="relative flex items-center gap-4">
+        <!-- Quota indicator -->
+        <div id="nav-quota" class="hidden items-center gap-1 text-on-surface-variant font-label-sm md:font-label-md">
+          <span class="material-symbols-outlined text-[18px]">receipt_long</span>
+          <span id="quota-text">...</span>
+        </div>
+
+        <!-- Upgrade Button (Free users) -->
+        <button id="btn-upgrade" onclick="openPricingModal()" class="hidden items-center gap-1.5 bg-gradient-to-r from-secondary to-secondary-container text-on-secondary px-3 md:px-4 py-1.5 rounded-full hover:shadow-lg hover:scale-105 transition-all cursor-pointer font-label-sm md:font-label-md font-bold">
+          <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+          <span class="hidden sm:inline">Upgrade to Pro</span>
+          <span class="sm:hidden">Pro</span>
+        </button>
+
+        <!-- Pro Badge (Pro users) -->
+        <div id="nav-pro-badge" class="hidden items-center gap-1.5 pro-badge text-white px-3 py-1.5 rounded-full font-label-sm md:font-label-md font-bold select-none">
+          <span class="material-symbols-outlined text-[18px] icon-fill pro-crown">star</span>
+          <span class="hidden sm:inline">PRO</span>
+        </div>
+
         <!-- Trigger -->
         <button id="nav-user-info" onclick="toggleUserDropdown(event)" class="hidden items-center gap-1.5 md:gap-2 bg-secondary-container px-2 md:px-3 py-1.5 rounded-lg hover:opacity-90 transition-opacity cursor-pointer">
           <span class="material-symbols-outlined text-on-secondary-container icon-fill text-[18px] md:text-[20px]">account_circle</span>
@@ -280,6 +350,16 @@
       </div>
     </div>
   </nav>
+
+  <!-- ── Pro User Banner ── -->
+  <div id="pro-banner" class="hidden pro-banner relative overflow-hidden">
+    <div class="max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-3 flex items-center justify-center gap-3 relative z-10">
+      <span class="material-symbols-outlined text-yellow-400 text-[22px] icon-fill pro-crown">workspace_premium</span>
+      <span class="pro-text-gradient font-bold text-sm md:text-base tracking-wide">You're a Pro Member</span>
+      <span class="text-gray-400 text-xs md:text-sm">·</span>
+      <span class="text-gray-300 text-xs md:text-sm">Unlimited scans & premium features unlocked 🚀</span>
+    </div>
+  </div>
 
   <main class="flex-grow">
 
@@ -573,6 +653,34 @@
         </div>
       </div>
     </section>
+
+    <!-- ── Pricing Modal ── -->
+    <div id="pricing-modal" class="hidden fixed inset-0 z-[9999] flex items-center justify-center" aria-modal="true" role="dialog">
+      <div class="absolute inset-0 bg-on-surface/50 backdrop-blur-sm" onclick="closePricingModal()"></div>
+      <div class="relative z-10 bg-surface-container-lowest rounded-2xl shadow-[0_32px_64px_rgba(0,0,0,0.2)] w-full max-w-md mx-4 overflow-hidden flex flex-col items-center p-8 text-center">
+        <button onclick="closePricingModal()" class="absolute top-4 right-4 text-on-surface-variant hover:text-primary transition-colors">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+        <div class="w-16 h-16 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mb-6">
+          <span class="material-symbols-outlined text-4xl icon-fill">workspace_premium</span>
+        </div>
+        <h2 class="font-headline-lg text-headline-lg text-primary mb-2">Upgrade to Pro</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-8">Unlock unlimited bill scanning and advanced features to effortlessly manage all your expenses.</p>
+        
+        <div class="w-full bg-surface-container-low rounded-xl p-6 border border-surface-container mb-8">
+          <div class="text-secondary font-display text-display font-bold mb-1">₹99<span class="text-body-md text-on-surface-variant font-normal">/month</span></div>
+          <ul class="text-left mt-6 space-y-3 font-body-md text-body-md text-on-surface">
+            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span> Unlimited AI Scans</li>
+            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span> Priority Processing</li>
+            <li class="flex items-center gap-2"><span class="material-symbols-outlined text-secondary text-[20px]">check_circle</span> Premium Support</li>
+          </ul>
+        </div>
+        
+        <button onclick="subscribePro()" class="w-full py-3.5 rounded-xl bg-secondary text-on-secondary font-title-lg text-title-lg font-bold hover:opacity-90 hover:shadow-lg transition-all active:scale-95">
+          Subscribe Now
+        </button>
+      </div>
+    </div>
 
   </main>
 
@@ -966,6 +1074,7 @@
         document.getElementById('nav-user-info').classList.add('flex');
         document.getElementById('nav-user-email').textContent = user.displayName || user.email || 'User';
         loadBillHistory();
+        checkUserStatus();
       } else {
         // User is signed out
         firebaseToken = null;
@@ -976,6 +1085,65 @@
         document.getElementById('nav-user-dropdown').classList.remove('flex');
       }
     });
+
+    // ── Subscription Functions ────────────────────────────────────────────
+    async function checkUserStatus() {
+      try {
+        const res = await fetch('/user-status', { headers: authHeaders() });
+        if (!res.ok) return;
+        const data = await res.json();
+        const quotaEl = document.getElementById('nav-quota');
+        const textEl = document.getElementById('quota-text');
+        const upgradeBtn = document.getElementById('btn-upgrade');
+        const proBadge = document.getElementById('nav-pro-badge');
+        const proBanner = document.getElementById('pro-banner');
+
+        if (data.is_pro) {
+          quotaEl.classList.add('hidden');
+          quotaEl.classList.remove('flex');
+          upgradeBtn.classList.add('hidden');
+          upgradeBtn.classList.remove('flex');
+          proBadge.classList.remove('hidden');
+          proBadge.classList.add('flex');
+          proBanner.classList.remove('hidden');
+        } else {
+          quotaEl.classList.remove('hidden');
+          quotaEl.classList.add('flex');
+          textEl.textContent = `${data.scan_count}/${data.scan_limit} scans`;
+          upgradeBtn.classList.remove('hidden');
+          upgradeBtn.classList.add('flex');
+          proBadge.classList.add('hidden');
+          proBadge.classList.remove('flex');
+          proBanner.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error('Failed to fetch user status', err);
+      }
+    }
+
+    function openPricingModal() {
+      document.getElementById('pricing-modal').classList.remove('hidden');
+    }
+
+    function closePricingModal() {
+      document.getElementById('pricing-modal').classList.add('hidden');
+    }
+
+    async function subscribePro() {
+      try {
+        const res = await fetch('/create-checkout-session', {
+          method: 'POST',
+          headers: authHeaders({ 'Content-Type': 'application/json' })
+        });
+        if (!res.ok) throw new Error('Failed to create checkout session');
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        }
+      } catch (err) {
+        showError('Could not start subscription process. Please try again.');
+      }
+    }
 
     // ── Auth Functions ────────────────────────────────────────────────────
     function showAuthError(msg) {
@@ -1145,6 +1313,11 @@
         });
 
         if (!response.ok) {
+          if (response.status === 403) {
+            hideProcessing();
+            openPricingModal();
+            return;
+          }
           let detail = `Server error (${response.status})`;
           try {
             const err = await response.json();
@@ -1510,6 +1683,13 @@
         });
 
         if (!response.ok) {
+          if (response.status === 403) {
+            closeAddModal();
+            openPricingModal();
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+            return;
+          }
           const err = await response.json().catch(() => ({}));
           throw new Error(err.detail || `Server error (${response.status})`);
         }
