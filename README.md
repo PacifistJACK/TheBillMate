@@ -5,6 +5,7 @@
   # The Bill Mate 🧾✨
   
   **🌍 Live Demo:** [https://thebillmate.j4du.in/](https://thebillmate.j4du.in/)
+[thebillmate-beta1.onrender.com](thebillmate-beta1.onrender.com)
 
   <p><em>An intelligent, AI-powered financial ledger that transforms physical receipts into pristine, actionable data.</em></p>
 </div>
