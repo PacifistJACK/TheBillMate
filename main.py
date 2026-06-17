@@ -573,8 +573,9 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 
 Rules:
 - carefully go through whole image of bill and extract data, sgst and cgst are tax types in india
-- Detect the GSTIN number (which must be a 15-digit alphanumeric identifier)
-- Identify and extract the CGST and SGST percentages
+- gstin: Detect the GSTIN number (which must be a 15-digit alphanumeric identifier).
+- cgst_percentage: Identify and extract the CGST percentage (number only).
+- sgst_percentage: Identify and extract the SGST percentage (number only).
 - Return ONLY the JSON object above
 - Use null for any field you cannot find
 - date format: DD-MM-YYYY if possible
@@ -637,7 +638,9 @@ Rules:
     await bills_collection.insert_one(new_bill)
 
     # 8. Return extracted data (with the generated id so the frontend can reference it)
-    return {**bill_data, "id": bill_id}
+    result_bill = serialize_bill(new_bill)
+    result_bill["date"] = result_bill["bill_date"] # fallback for frontend
+    return result_bill
 
 
 # ─────────────────────────────
