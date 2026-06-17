@@ -302,7 +302,8 @@ async def get_user_subscription_info(user: dict):
         if updates:
             await users_collection.update_one({"_id": uid}, {"$set": updates})
 
-    is_pro = user_doc.get("is_pro", False)
+    is_pro = True # Temporary: force everyone to be a pro user
+    # is_pro = user_doc.get("is_pro", False)
     
     # Calculate scans this month
     now = datetime.now(timezone.utc)
