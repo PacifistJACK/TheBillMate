@@ -567,6 +567,18 @@
 
           <div class="mt-6 flex flex-col items-end gap-2">
             <div class="flex items-center gap-8 font-body-md text-body-md text-on-surface-variant">
+              <span>GSTIN</span>
+              <span id="result-gstin" class="font-label-md text-label-md text-on-surface w-28 text-right"></span>
+            </div>
+            <div class="flex items-center gap-8 font-body-md text-body-md text-on-surface-variant">
+              <span>CGST %</span>
+              <span id="result-cgst" class="font-label-md text-label-md text-on-surface w-28 text-right"></span>
+            </div>
+            <div class="flex items-center gap-8 font-body-md text-body-md text-on-surface-variant">
+              <span>SGST %</span>
+              <span id="result-sgst" class="font-label-md text-label-md text-on-surface w-28 text-right"></span>
+            </div>
+            <div class="flex items-center gap-8 font-body-md text-body-md text-on-surface-variant">
               <span>Tax</span>
               <span id="result-tax" class="font-label-md text-label-md text-on-surface w-28 text-right"></span>
             </div>
@@ -760,18 +772,34 @@
           </button>
         </div>
 
-        <!-- Tax & Total -->
+        <!-- Tax & Additional Info -->
         <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="add-gstin">GSTIN</label>
+            <input id="add-gstin" type="text" placeholder="15-digit code"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="add-tax">Tax (₹)</label>
             <input id="add-tax" type="number" min="0" step="0.01" placeholder="0.00" oninput="recalcAddTotal()"
               class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
           <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="add-cgst">CGST %</label>
+            <input id="add-cgst" type="number" min="0" step="0.01" placeholder="0"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="add-sgst">SGST %</label>
+            <input id="add-sgst" type="number" min="0" step="0.01" placeholder="0"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
+        </div>
+
+        <div class="space-y-1.5 mt-4">
             <label class="font-label-md text-label-md text-on-surface-variant" for="add-total">Total (₹)</label>
             <input id="add-total" type="number" min="0" step="0.01" placeholder="auto-calculated"
               class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface-container focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all text-secondary font-semibold" />
-          </div>
         </div>
 
       </div>
@@ -903,18 +931,34 @@
           </button>
         </div>
 
-        <!-- Tax & Total -->
+        <!-- Tax & Additional Info -->
         <div class="grid grid-cols-2 gap-4">
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="edit-gstin">GSTIN</label>
+            <input id="edit-gstin" type="text"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
           <div class="space-y-1.5">
             <label class="font-label-md text-label-md text-on-surface-variant" for="edit-tax">Tax (₹)</label>
             <input id="edit-tax" type="number" min="0" step="0.01"
               class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
           </div>
           <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="edit-cgst">CGST %</label>
+            <input id="edit-cgst" type="number" min="0" step="0.01"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
+          <div class="space-y-1.5">
+            <label class="font-label-md text-label-md text-on-surface-variant" for="edit-sgst">SGST %</label>
+            <input id="edit-sgst" type="number" min="0" step="0.01"
+              class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
+        </div>
+
+        <div class="space-y-1.5 mt-4">
             <label class="font-label-md text-label-md text-on-surface-variant" for="edit-total">Total (₹)</label>
             <input id="edit-total" type="number" min="0" step="0.01"
               class="w-full px-4 py-2.5 rounded-lg border border-outline-variant bg-surface focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
-          </div>
         </div>
       </div>
 
@@ -1380,6 +1424,9 @@
       }
 
       document.getElementById('result-tax').textContent = formatCurrency(bill.tax ?? 0);
+      document.getElementById('result-gstin').textContent = bill.gstin || 'N/A';
+      document.getElementById('result-cgst').textContent = bill.cgst_percentage != null ? bill.cgst_percentage + '%' : 'N/A';
+      document.getElementById('result-sgst').textContent = bill.sgst_percentage != null ? bill.sgst_percentage + '%' : 'N/A';
       document.getElementById('result-total').textContent = formatCurrency(bill.total_amount ?? 0);
 
       const section = document.getElementById('result-section');
@@ -1572,6 +1619,9 @@
       const _yyyy = _now.getFullYear();
       document.getElementById('add-vendor').value = '';
       document.getElementById('add-date').value = `${_dd}-${_mm}-${_yyyy}`;
+      document.getElementById('add-gstin').value = '';
+      document.getElementById('add-cgst').value = '';
+      document.getElementById('add-sgst').value = '';
       document.getElementById('add-tax').value = '';
       document.getElementById('add-total').value = '';
       const list = document.getElementById('add-items-list');
@@ -1671,6 +1721,9 @@
         vendor_name: document.getElementById('add-vendor').value.trim() || null,
         bill_date: toDDMMYYYY(document.getElementById('add-date').value) || null,
         items,
+        gstin: document.getElementById('add-gstin').value.trim() || null,
+        cgst_percentage: parseFloat(document.getElementById('add-cgst').value) || null,
+        sgst_percentage: parseFloat(document.getElementById('add-sgst').value) || null,
         tax: parseFloat(document.getElementById('add-tax').value) || 0,
         total_amount: parseFloat(document.getElementById('add-total').value) || 0,
       };
@@ -1715,6 +1768,9 @@
       // Populate fields
       document.getElementById('edit-vendor').value = bill.vendor_name || '';
       document.getElementById('edit-date').value = toDDMMYYYY(bill.bill_date || bill.date || '');
+      document.getElementById('edit-gstin').value = bill.gstin || '';
+      document.getElementById('edit-cgst').value = bill.cgst_percentage || '';
+      document.getElementById('edit-sgst').value = bill.sgst_percentage || '';
       document.getElementById('edit-tax').value = bill.tax || 0;
       document.getElementById('edit-total').value = bill.total_amount || 0;
 
@@ -1809,6 +1865,9 @@
         vendor_name: document.getElementById('edit-vendor').value.trim(),
         bill_date: toDDMMYYYY(document.getElementById('edit-date').value),
         items,
+        gstin: document.getElementById('edit-gstin').value.trim() || null,
+        cgst_percentage: parseFloat(document.getElementById('edit-cgst').value) || null,
+        sgst_percentage: parseFloat(document.getElementById('edit-sgst').value) || null,
         tax: parseFloat(document.getElementById('edit-tax').value) || 0,
         total_amount: parseFloat(document.getElementById('edit-total').value) || 0,
       };
