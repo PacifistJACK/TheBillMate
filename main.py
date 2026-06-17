@@ -1,6 +1,6 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, StreamingResponse
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from sambanova import SambaNova
@@ -18,6 +18,9 @@ import urllib.request
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 import stripe
+import io
+import openpyxl
+from openpyxl.styles import Font
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -449,6 +452,73 @@ async def get_bills(user: dict = Depends(get_current_user)):
     cursor = bills_collection.find({"user_id": user["uid"]}).sort("created_at", DESCENDING)
     bills = [serialize_bill(doc) async for doc in cursor]
     return bills
+
+# ─────────────────────────────
+# GET /bills/export/excel
+# ─────────────────────────────
+@app.get("/bills/export/excel")
+async def export_bills_excel(user: dict = Depends(get_current_user)):
+    """Export all bills for the authenticated user as an Excel (.xlsx) file."""
+    cursor = bills_collection.find({"user_id": user["uid"]}).sort("created_at", DESCENDING)
+    bills = [serialize_bill(doc) async for doc in cursor]
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Bills"
+
+    headers = [
+        "Bill Date", "Vendor Name", "GSTIN", "Total Items", "CGST Rate (%)", "CGST Amount", 
+        "SGST Rate (%)", "SGST Amount", "Total Tax", "Grand Total"
+    ]
+    ws.append(headers)
+    
+    # Make headers bold
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.font = Font(bold=True)
+
+    for bill in bills:
+        items = bill.get("items") or []
+        row = [
+            bill.get("bill_date") or bill.get("date") or "",
+            bill.get("vendor_name") or "",
+            bill.get("gstin") or "",
+            len(items),
+            bill.get("cgst_percentage") or "",
+            bill.get("cgst_amount") or "",
+            bill.get("sgst_percentage") or "",
+            bill.get("sgst_amount") or "",
+            bill.get("tax") or 0,
+            bill.get("total_amount") or 0
+        ]
+        ws.append(row)
+
+    # Auto-adjust column widths
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(str(cell.value))
+            except:
+                pass
+        ws.column_dimensions[column].width = max_length + 2
+
+    buffer = io.BytesIO()
+    wb.save(buffer)
+    buffer.seek(0)
+
+    filename = f"bills_{datetime.now(timezone.utc).strftime('%Y-%m-%d')}.xlsx"
+    headers_dict = {
+        'Content-Disposition': f'attachment; filename="{filename}"'
+    }
+
+    return StreamingResponse(
+        buffer,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers=headers_dict
+    )
 
 
 # ─────────────────────────────

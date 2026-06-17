@@ -626,10 +626,15 @@
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
+            <button id="btn-download-excel" onclick="downloadBillsExcel()"
+              class="inline-flex items-center gap-2 bg-[#107c41] text-white px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
+              <span class="material-symbols-outlined text-base">table_chart</span>
+              <span class="hidden sm:inline">Export Excel</span>
+            </button>
             <button id="btn-download-json" onclick="downloadBillsJSON()"
               class="inline-flex items-center gap-2 bg-secondary text-on-secondary px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
-              <span class="material-symbols-outlined text-base">download</span>
-              <span class="hidden sm:inline">Download JSON</span>
+              <span class="material-symbols-outlined text-base">data_object</span>
+              <span class="hidden sm:inline">JSON</span>
             </button>
             <button id="btn-refresh-history" onclick="loadBillHistory()"
               class="inline-flex items-center gap-2 bg-surface-container-lowest text-on-surface border border-outline-variant px-3 py-2 rounded-lg font-label-md text-label-md hover:bg-surface-container transition-colors">
@@ -2031,6 +2036,37 @@
         URL.revokeObjectURL(url);
       } catch (err) {
         showError('Could not download bill history. Please try again.');
+      } finally {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+      }
+    }
+
+    // ── Download bills as Excel ───────────────────────────────────────────
+    async function downloadBillsExcel() {
+      const btn = document.getElementById('btn-download-excel');
+      const originalHTML = btn.innerHTML;
+      btn.innerHTML = '<span class="material-symbols-outlined text-base animate-spin">progress_activity</span> Exporting…';
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('/bills/export/excel', { 
+          headers: authHeaders(),
+          cache: 'no-store'
+        });
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bill-history-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        showError('Could not download Excel file. Please try again.');
       } finally {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
