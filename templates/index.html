@@ -1440,7 +1440,7 @@
         warningsHtml += `
           <div class="flex items-start gap-2 text-error text-sm bg-error/10 p-3 rounded-lg border border-error/20">
             <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">warning</span>
-            <p><strong>Warning:</strong> GSTIN number is ${bill.gstin.length} characters long. A valid GSTIN must be exactly 15 characters.</p>
+            <p><strong>Warning:</strong> GSTIN number is ${bill.gstin.length} characters long. A valid GSTIN must be exactly 15 characters. You can fix this by clicking the <strong>Edit</strong> button in your bill history down below.</p>
           </div>
         `;
       }
@@ -1448,7 +1448,7 @@
       warningsHtml += `
         <div class="flex items-start gap-2 text-warning text-sm bg-warning/10 p-3 rounded-lg border border-warning/20">
           <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">info</span>
-          <p><strong>Please verify carefully:</strong> AI can make mistakes. Double-check the items and amounts against the original bill image before saving.</p>
+          <p><strong>Please verify carefully:</strong> AI can make mistakes. Double-check the extracted details. If anything is incorrect, you can fix it by clicking the <strong>Edit</strong> button in your bill history down below.</p>
         </div>
       `;
       warningsDiv.innerHTML = warningsHtml;
