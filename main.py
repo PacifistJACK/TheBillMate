@@ -474,6 +474,9 @@ async def create_bill(request: Request, user: dict = Depends(get_current_user)):
         "bill_date":    body.get("bill_date")   or None,
         "items":        body.get("items")        or [],
         "tax":          body.get("tax")          or 0,
+        "cgst_percentage": body.get("cgst_percentage"),
+        "sgst_percentage": body.get("sgst_percentage"),
+        "gstin":        body.get("gstin"),
         "total_amount": body.get("total_amount") or 0,
         "created_at":   datetime.now(timezone.utc).isoformat(),
         "source":       "manual",
@@ -497,6 +500,9 @@ async def patch_bill(bill_id: str, request: Request, user: dict = Depends(get_cu
         "bill_date":    body.get("bill_date"),
         "items":        body.get("items") or [],
         "tax":          body.get("tax") or 0,
+        "cgst_percentage": body.get("cgst_percentage"),
+        "sgst_percentage": body.get("sgst_percentage"),
+        "gstin":        body.get("gstin"),
         "total_amount": body.get("total_amount") or 0,
     }
 
@@ -549,6 +555,7 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 
 {
   "vendor_name": "",
+  "gstin": "",
   "date": "",
   "items": [
     {
@@ -559,11 +566,15 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
     }
   ],
   "tax": 0,
+  "cgst_percentage": null,
+  "sgst_percentage": null,
   "total_amount": 0
 }
 
 Rules:
-- carefully go through whole image of bill and extract data, sgst and cgst are tex type in india 
+- carefully go through whole image of bill and extract data, sgst and cgst are tax types in india
+- Detect the GSTIN number (which must be a 15-digit alphanumeric identifier)
+- Identify and extract the CGST and SGST percentages
 - Return ONLY the JSON object above
 - Use null for any field you cannot find
 - date format: DD-MM-YYYY if possible
@@ -617,6 +628,9 @@ Rules:
         "bill_date":    bill_data.get("date"),
         "items":        bill_data.get("items") or [],
         "tax":          bill_data.get("tax") or 0,
+        "cgst_percentage": bill_data.get("cgst_percentage"),
+        "sgst_percentage": bill_data.get("sgst_percentage"),
+        "gstin":        bill_data.get("gstin"),
         "total_amount": bill_data.get("total_amount") or 0,
         "created_at":   datetime.now(timezone.utc).isoformat(),
     }
