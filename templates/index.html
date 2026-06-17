@@ -1806,8 +1806,6 @@
           if (response.status === 403) {
             closeAddModal();
             openPricingModal();
-            btn.innerHTML = originalHTML;
-            btn.disabled = false;
             return;
           }
           const err = await response.json().catch(() => ({}));
@@ -1816,11 +1814,11 @@
 
         closeAddModal();
         await loadBillHistory();
-        // Scroll to the bills section to see the new entry
         document.getElementById('my-bills-section').scrollIntoView({ behavior: 'smooth' });
 
       } catch (err) {
         showError(err.message || 'Could not save bill. Please try again.');
+      } finally {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
       }
@@ -1960,6 +1958,7 @@
 
       } catch (err) {
         showError(err.message || 'Could not save changes. Please try again.');
+      } finally {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
       }
@@ -1999,9 +1998,10 @@
 
       } catch (err) {
         showError(err.message || 'Could not delete bill. Please try again.');
+        closeDeleteConfirm();
+      } finally {
         btn.innerHTML = originalHTML;
         btn.disabled = false;
-        closeDeleteConfirm();
       }
     }
 

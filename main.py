@@ -553,7 +553,8 @@ async def upload_bill(file: UploadFile = File(...), user: dict = Depends(get_cur
     base64_image = base64.b64encode(image_bytes).decode("utf-8")
 
     # 4. Prompt
-    prompt = """Extract structured bill data from this image.
+    prompt = """You are a highly accurate data extraction assistant. Your task is to carefully read the provided bill/invoice image and extract structured data with maximum precision.
+Take your time to meticulously double-check all monetary amounts, decimal points, quantities, and calculations. Accuracy is strictly prioritized over speed.
 
 Return ONLY valid JSON with no explanation, no markdown fences, and no extra text:
 
@@ -577,19 +578,20 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
   "total_amount": 0
 }
 
-Rules:
-- carefully go through whole image of bill and extract data, sgst and cgst are tax types in india
-- gstin: Detect the GSTIN number (which must be a 15-digit alphanumeric identifier).
-- cgst_percentage: the CGST rate as a number (e.g. 2.5 means 2.5%).
-- cgst_amount: the actual CGST amount in rupees as a number.
-- sgst_percentage: the SGST rate as a number (e.g. 2.5 means 2.5%).
-- sgst_amount: the actual SGST amount in rupees as a number.
-- tax: the total combined tax amount in rupees.
-- Return ONLY the JSON object above
-- Use null for any field you cannot find
-- date format: DD-MM-YYYY if possible
-- price and total_amount must be numbers, not strings
-- description: capture any special item notes printed on the bill such as warranty period, serial number, model number, SKU, expiry date, or any other item-specific annotation. Leave as empty string if none.
+Critical Accuracy Rules:
+1. READ CAREFULLY: Go through the whole image line-by-line. Do not guess or hallucinate numbers; extract exactly what is printed.
+2. AMOUNTS & DECIMALS: Pay special attention to decimal points and commas (e.g. 1,200.50). 
+3. ITEM PRICE: The "price" field must be the total price for that line item. If the bill shows both unit price and line total, use the line total.
+4. TOTAL AMOUNT: This is the final grand total paid by the customer. Double-check that it matches the printed grand total.
+5. TAXES (GST in India):
+   - gstin: Detect the GSTIN number (must be exactly a 15-digit alphanumeric identifier).
+   - cgst_percentage & sgst_percentage: The tax rate as a number (e.g., 2.5 for 2.5%).
+   - cgst_amount & sgst_amount: The actual tax monetary amounts as numbers.
+   - tax: The total combined tax amount.
+6. STRICT JSON: Return ONLY the exact JSON object structure above. Do not include markdown code blocks.
+7. NULL VALUES: Use null for any field you cannot find. Do not make up data.
+8. DATE: Format as DD-MM-YYYY if possible.
+9. DESCRIPTION: Capture any special item notes (warranty, serial number, model, SKU, expiry). Leave empty if none.
 """
 
     # 5. Call SambaNova
@@ -610,7 +612,7 @@ Rules:
                     ]
                 }
             ],
-            temperature=0.1,
+            temperature=0.0,
             top_p=0.1
         )
     except Exception as e:
