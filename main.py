@@ -475,7 +475,9 @@ async def create_bill(request: Request, user: dict = Depends(get_current_user)):
         "items":        body.get("items")        or [],
         "tax":          body.get("tax")          or 0,
         "cgst_percentage": body.get("cgst_percentage"),
+        "cgst_amount":  body.get("cgst_amount"),
         "sgst_percentage": body.get("sgst_percentage"),
+        "sgst_amount":  body.get("sgst_amount"),
         "gstin":        body.get("gstin"),
         "total_amount": body.get("total_amount") or 0,
         "created_at":   datetime.now(timezone.utc).isoformat(),
@@ -501,7 +503,9 @@ async def patch_bill(bill_id: str, request: Request, user: dict = Depends(get_cu
         "items":        body.get("items") or [],
         "tax":          body.get("tax") or 0,
         "cgst_percentage": body.get("cgst_percentage"),
+        "cgst_amount":  body.get("cgst_amount"),
         "sgst_percentage": body.get("sgst_percentage"),
+        "sgst_amount":  body.get("sgst_amount"),
         "gstin":        body.get("gstin"),
         "total_amount": body.get("total_amount") or 0,
     }
@@ -567,15 +571,20 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
   ],
   "tax": 0,
   "cgst_percentage": null,
+  "cgst_amount": null,
   "sgst_percentage": null,
+  "sgst_amount": null,
   "total_amount": 0
 }
 
 Rules:
 - carefully go through whole image of bill and extract data, sgst and cgst are tax types in india
 - gstin: Detect the GSTIN number (which must be a 15-digit alphanumeric identifier).
-- cgst_percentage: Identify and extract the CGST percentage (number only).
-- sgst_percentage: Identify and extract the SGST percentage (number only).
+- cgst_percentage: the CGST rate as a number (e.g. 2.5 means 2.5%).
+- cgst_amount: the actual CGST amount in rupees as a number.
+- sgst_percentage: the SGST rate as a number (e.g. 2.5 means 2.5%).
+- sgst_amount: the actual SGST amount in rupees as a number.
+- tax: the total combined tax amount in rupees.
 - Return ONLY the JSON object above
 - Use null for any field you cannot find
 - date format: DD-MM-YYYY if possible
@@ -630,7 +639,9 @@ Rules:
         "items":        bill_data.get("items") or [],
         "tax":          bill_data.get("tax") or 0,
         "cgst_percentage": bill_data.get("cgst_percentage"),
+        "cgst_amount":  bill_data.get("cgst_amount"),
         "sgst_percentage": bill_data.get("sgst_percentage"),
+        "sgst_amount":  bill_data.get("sgst_amount"),
         "gstin":        bill_data.get("gstin"),
         "total_amount": bill_data.get("total_amount") or 0,
         "created_at":   datetime.now(timezone.utc).isoformat(),
