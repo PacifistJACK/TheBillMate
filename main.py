@@ -651,17 +651,18 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 Critical Accuracy Rules:
 1. READ CAREFULLY: Go through the whole image line-by-line. Do not guess or hallucinate numbers; extract exactly what is printed.
 2. AMOUNTS & DECIMALS: Pay special attention to decimal points and commas (e.g. 1,200.50). 
-3. ITEM PRICE: The "price" field must be the total price for that line item. If the bill shows both unit price and line total, use the line total.
-4. TOTAL AMOUNT: This is the final grand total paid by the customer. Double-check that it matches the printed grand total.
-5. TAXES (GST in India):
+3. HORIZONTAL ALIGNMENT (CRITICAL): Bills often have wide gaps between the item name on the left and its price on the right. Trace horizontally across the entire row to ensure you match the EXACT price to the correct item. Do not mix up prices from different rows.
+4. ITEM PRICE: The "price" field must be the total price for that line item. If the bill shows both unit price and line total, use the line total.
+5. TOTAL AMOUNT: This is the final grand total paid by the customer. Double-check that it matches the printed grand total.
+6. TAXES (GST in India):
    - gstin: Detect the GSTIN number (must be exactly a 15-digit alphanumeric identifier).
    - cgst_percentage & sgst_percentage: The tax rate as a number (e.g., 2.5 for 2.5%).
    - cgst_amount & sgst_amount: The actual tax monetary amounts as numbers.
    - tax: The total combined tax amount.
-6. STRICT JSON: Return ONLY the exact JSON object structure above. Do not include markdown code blocks.
-7. NULL VALUES: Use null for any field you cannot find. Do not make up data.
-8. DATE: Format as DD-MM-YYYY if possible.
-9. DESCRIPTION: Capture any special item notes (warranty, serial number, model, SKU, expiry). Leave empty if none.
+7. STRICT JSON: Return ONLY the exact JSON object structure above. Do not include markdown code blocks.
+8. NULL VALUES: Use null for any field you cannot find. Do not make up data.
+9. DATE: Format as DD-MM-YYYY if possible.
+10. DESCRIPTION: Capture any special item notes (warranty, serial number, model, SKU, expiry). Leave empty if none.
 """
 
     # 5. Call SambaNova

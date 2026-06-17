@@ -542,6 +542,9 @@
           </div>
         </div>
 
+        <!-- Warnings Banner -->
+        <div id="result-warnings" class="hidden px-5 md:px-8 pt-5 pb-1 space-y-2"></div>
+
         <!-- GSTIN Badge -->
         <div id="result-gstin-row" class="hidden px-5 md:px-8 pt-4">
           <div class="inline-flex items-center gap-2 bg-surface-container rounded-lg px-3 py-2 border border-outline-variant">
@@ -1427,6 +1430,29 @@
     function renderResult(bill) {
       document.getElementById('result-vendor').textContent = bill.vendor_name || 'Unknown Vendor';
       document.getElementById('result-date').textContent = toDDMMYYYY(bill.date) || 'N/A';
+
+      // Setup Warnings
+      const warningsDiv = document.getElementById('result-warnings');
+      warningsDiv.innerHTML = '';
+      let warningsHtml = '';
+
+      if (bill.gstin && bill.gstin.length !== 15) {
+        warningsHtml += `
+          <div class="flex items-start gap-2 text-error text-sm bg-error/10 p-3 rounded-lg border border-error/20">
+            <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">warning</span>
+            <p><strong>Warning:</strong> GSTIN number is ${bill.gstin.length} characters long. A valid GSTIN must be exactly 15 characters.</p>
+          </div>
+        `;
+      }
+
+      warningsHtml += `
+        <div class="flex items-start gap-2 text-warning text-sm bg-warning/10 p-3 rounded-lg border border-warning/20">
+          <span class="material-symbols-outlined text-[18px] shrink-0 mt-0.5">info</span>
+          <p><strong>Please verify carefully:</strong> AI can make mistakes. Double-check the items and amounts against the original bill image before saving.</p>
+        </div>
+      `;
+      warningsDiv.innerHTML = warningsHtml;
+      warningsDiv.classList.remove('hidden');
 
       const tbody = document.getElementById('result-items');
       tbody.innerHTML = '';
