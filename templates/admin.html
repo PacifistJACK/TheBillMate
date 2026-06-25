@@ -62,7 +62,22 @@
     <main class="flex-grow p-6 max-w-6xl mx-auto w-full">
       
       <!-- Metrics -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col justify-between items-start">
+          <div class="w-full flex items-center justify-between mb-4">
+            <div>
+              <p class="text-sm text-gray-500 font-medium">Premium Feature</p>
+              <p id="metric-premium" class="text-lg font-bold text-gray-900 mt-1">...</p>
+            </div>
+            <div class="w-12 h-12 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center">
+              <span class="material-symbols-outlined">stars</span>
+            </div>
+          </div>
+          <button onclick="toggleGlobalPremium()" class="w-full bg-indigo-60 text-indigo-700 font-medium py-2 rounded-lg border border-indigo-200 hover:bg-indigo-100 transition text-sm">
+            Toggle Premium
+          </button>
+        </div>
+
         <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex items-center gap-4">
           <div class="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
             <span class="material-symbols-outlined">group</span>
@@ -159,6 +174,7 @@
         document.getElementById('dashboard').classList.remove('hidden');
         document.getElementById('dashboard').classList.add('flex');
         loadUsers();
+        loadSettings();
       } else {
         authToken = null;
         document.getElementById('login-screen').classList.remove('hidden');
@@ -183,6 +199,46 @@
         toast.style.opacity = '0';
         toast.style.transform = 'translateY(24px)';
       }, 4000);
+    }
+
+    async function loadSettings() {
+      try {
+        const response = await fetch('/api/admin/settings', {
+          headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        document.getElementById('metric-premium').textContent = data.premium_enabled ? 'Enabled' : 'Disabled';
+        document.getElementById('metric-premium').className = data.premium_enabled ? 'text-lg font-bold text-emerald-600 mt-1' : 'text-lg font-bold text-gray-400 mt-1';
+      } catch (err) {
+        console.error('Failed to load settings', err);
+      }
+    }
+
+    async function toggleGlobalPremium() {
+      try {
+        // Get current text to flip
+        const isCurrentlyEnabled = document.getElementById('metric-premium').textContent === 'Enabled';
+        const newStatus = !isCurrentlyEnabled;
+
+        if (!confirm(`Are you sure you want to ${newStatus ? 'ENABLE' : 'DISABLE'} Premium features globally?`)) return;
+
+        const res = await fetch('/api/admin/settings', {
+          method: 'POST',
+          headers: { 
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ premium_enabled: newStatus })
+        });
+        
+        if (!res.ok) throw new Error('Failed to update global premium setting');
+        
+        showToast(`Premium features are now ${newStatus ? 'enabled' : 'disabled'}.`, false);
+        loadSettings();
+      } catch (err) {
+        showToast(err.message);
+      }
     }
 
     async function loadUsers() {

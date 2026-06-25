@@ -623,12 +623,19 @@
     <!-- ── My Bills ── -->
     <section id="my-bills" class="px-margin-mobile md:px-margin-desktop py-16 bg-surface-container-low">
       <div id="my-bills-section" class="max-w-container-max mx-auto">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8 gap-4">
-          <div>
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
+          <div class="flex-1">
             <h2 class="font-headline-lg text-headline-lg text-primary">My Bills</h2>
             <p class="font-body-md text-body-md text-on-surface-variant mt-1">Your complete scanning history</p>
           </div>
-          <div class="flex items-center gap-2 shrink-0">
+          
+          <div class="flex-1 max-w-md w-full relative">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+            <input id="bill-search" type="text" placeholder="Search vendors, items, or amounts..." oninput="renderBills()"
+              class="w-full pl-10 pr-4 py-2 rounded-lg border border-outline-variant bg-surface-container-lowest focus:border-secondary focus:ring-2 focus:ring-secondary/20 outline-none font-body-md text-body-md transition-all" />
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 flex-wrap">
             <button id="btn-download-excel" onclick="downloadBillsExcel()"
               class="inline-flex items-center gap-2 bg-[#107c41] text-white px-3 py-2 rounded-lg font-label-md text-label-md hover:opacity-90 transition-opacity">
               <span class="material-symbols-outlined text-base">table_chart</span>
@@ -1182,23 +1189,33 @@
         const proBadge = document.getElementById('nav-pro-badge');
         const proBanner = document.getElementById('pro-banner');
 
-        if (data.is_pro) {
+        if (data.premium_enabled === false) {
           quotaEl.classList.add('hidden');
           quotaEl.classList.remove('flex');
           upgradeBtn.classList.add('hidden');
           upgradeBtn.classList.remove('flex');
-          proBadge.classList.remove('hidden');
-          proBadge.classList.add('flex');
-          proBanner.classList.remove('hidden');
-        } else {
-          quotaEl.classList.remove('hidden');
-          quotaEl.classList.add('flex');
-          textEl.textContent = `${data.scan_count}/${data.scan_limit} scans`;
-          upgradeBtn.classList.remove('hidden');
-          upgradeBtn.classList.add('flex');
           proBadge.classList.add('hidden');
           proBadge.classList.remove('flex');
           proBanner.classList.add('hidden');
+        } else {
+          if (data.is_pro) {
+            quotaEl.classList.add('hidden');
+            quotaEl.classList.remove('flex');
+            upgradeBtn.classList.add('hidden');
+            upgradeBtn.classList.remove('flex');
+            proBadge.classList.remove('hidden');
+            proBadge.classList.add('flex');
+            proBanner.classList.remove('hidden');
+          } else {
+            quotaEl.classList.remove('hidden');
+            quotaEl.classList.add('flex');
+            textEl.textContent = `${data.scan_count}/${data.scan_limit} scans`;
+            upgradeBtn.classList.remove('hidden');
+            upgradeBtn.classList.add('flex');
+            proBadge.classList.add('hidden');
+            proBadge.classList.remove('flex');
+            proBanner.classList.add('hidden');
+          }
         }
       } catch (err) {
         console.error('Failed to fetch user status', err);
@@ -1530,11 +1547,10 @@
       loadBillHistory();
     }
 
+    let allBillsData = [];
+
     // ── Load bill history ─────────────────────────────────────────────────
     async function loadBillHistory() {
-      const container = document.getElementById('history-list');
-      const emptyState = document.getElementById('history-empty-state');
-
       try {
         const response = await fetch('/bills', { 
           headers: authHeaders(),
@@ -1542,64 +1558,92 @@
         });
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-        const bills = await response.json();
-
-        // Clear existing cards (keep empty state el)
-        Array.from(container.children).forEach(child => {
-          if (child.id !== 'history-empty-state') child.remove();
-        });
-
-        if (!Array.isArray(bills) || bills.length === 0) {
-          emptyState.classList.remove('hidden');
-          document.getElementById('dashboard-metrics').classList.add('hidden');
-          return;
-        }
-
-        emptyState.classList.add('hidden');
-        document.getElementById('dashboard-metrics').classList.remove('hidden');
-
-        let overallTotal = 0;
-        let monthlyTotal = 0;
-        const vendors = new Set();
-        const now = new Date();
-        const currentMonth = now.getMonth() + 1;
-        const currentYear = now.getFullYear();
-
-        // Backend already returns newest-first - no reverse needed
-        bills.forEach((bill, idx) => {
-          container.insertBefore(buildHistoryCard(bill, idx), emptyState);
-
-          const amt = parseFloat(bill.total_amount) || 0;
-          overallTotal += amt;
-          if (bill.vendor_name) vendors.add(bill.vendor_name.trim().toLowerCase());
-          
-          let billD = bill.bill_date || bill.date;
-          if (billD) {
-            let m = null, y = null;
-            if (/^\d{2}-\d{2}-\d{4}$/.test(billD)) {
-               const parts = billD.split('-');
-               m = parseInt(parts[1], 10);
-               y = parseInt(parts[2], 10);
-            } else if (/^\d{4}-\d{2}-\d{2}$/.test(billD)) {
-               const parts = billD.split('-');
-               y = parseInt(parts[0], 10);
-               m = parseInt(parts[1], 10);
-            }
-            if (m === currentMonth && y === currentYear) {
-               monthlyTotal += amt;
-            }
-          }
-        });
-
-        document.getElementById('metric-overall-total').textContent = formatCurrency(overallTotal);
-        document.getElementById('metric-monthly-total').textContent = formatCurrency(monthlyTotal);
-        document.getElementById('metric-vendors').textContent = vendors.size.toString();
-        document.getElementById('metric-bill-count').textContent = bills.length.toString();
-
+        allBillsData = await response.json();
+        
+        // Reset search field if needed, or keep it to apply filter immediately
+        renderBills();
       } catch (err) {
         console.error('Failed to load bill history:', err);
       }
+    }
+
+    function renderBills() {
+      const container = document.getElementById('history-list');
+      const emptyState = document.getElementById('history-empty-state');
+      const query = (document.getElementById('bill-search').value || '').toLowerCase().trim();
+
+      // Clear existing cards
+      Array.from(container.children).forEach(child => {
+        if (child.id !== 'history-empty-state') child.remove();
+      });
+
+      if (!Array.isArray(allBillsData) || allBillsData.length === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.innerHTML = '<span class="material-symbols-outlined text-4xl block mb-3 text-outline">receipt_long</span>Scan your first bill to see it appear here.';
+        document.getElementById('dashboard-metrics').classList.add('hidden');
+        return;
+      }
+
+      let filtered = allBillsData;
+      if (query) {
+        filtered = allBillsData.filter(b => {
+          const vendorMatch = (b.vendor_name || '').toLowerCase().includes(query);
+          const dateMatch = (b.bill_date || b.date || '').includes(query);
+          const amtMatch = (b.total_amount || '').toString().includes(query);
+          const itemsMatch = (b.items || []).some(i => 
+            (i.item_name || '').toLowerCase().includes(query) || 
+            (i.description || '').toLowerCase().includes(query)
+          );
+          return vendorMatch || dateMatch || amtMatch || itemsMatch;
+        });
+      }
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('hidden');
+        emptyState.innerHTML = '<span class="material-symbols-outlined text-4xl block mb-3 text-outline">search_off</span>No bills match your search criteria.';
+        document.getElementById('dashboard-metrics').classList.remove('hidden');
+      } else {
+        emptyState.classList.add('hidden');
+        document.getElementById('dashboard-metrics').classList.remove('hidden');
+      }
+
+      let overallTotal = 0;
+      let monthlyTotal = 0;
+      const vendors = new Set();
+      const now = new Date();
+      const currentMonth = now.getMonth() + 1;
+      const currentYear = now.getFullYear();
+
+      // Backend already returns newest-first - no reverse needed
+      filtered.forEach((bill, idx) => {
+        container.insertBefore(buildHistoryCard(bill, idx), emptyState);
+
+        const amt = parseFloat(bill.total_amount) || 0;
+        overallTotal += amt;
+        if (bill.vendor_name) vendors.add(bill.vendor_name.trim().toLowerCase());
+        
+        let billD = bill.bill_date || bill.date;
+        if (billD) {
+          let m = null, y = null;
+          if (/^\d{2}-\d{2}-\d{4}$/.test(billD)) {
+             const parts = billD.split('-');
+             m = parseInt(parts[1], 10);
+             y = parseInt(parts[2], 10);
+          } else if (/^\d{4}-\d{2}-\d{2}$/.test(billD)) {
+             const parts = billD.split('-');
+             y = parseInt(parts[0], 10);
+             m = parseInt(parts[1], 10);
+          }
+          if (m === currentMonth && y === currentYear) {
+             monthlyTotal += amt;
+          }
+        }
+      });
+
+      document.getElementById('metric-overall-total').textContent = formatCurrency(overallTotal);
+      document.getElementById('metric-monthly-total').textContent = formatCurrency(monthlyTotal);
+      document.getElementById('metric-vendors').textContent = vendors.size.toString();
+      document.getElementById('metric-bill-count').textContent = filtered.length.toString();
     }
 
     // ── Build history card ────────────────────────────────────────────────

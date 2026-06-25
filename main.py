@@ -125,6 +125,7 @@ MAX_FILE_SIZE_MB = 10
 mongo_client: AsyncIOMotorClient | None = None
 bills_collection = None
 users_collection = None
+settings_collection = None
 
 
 # ─────────────────────────────
@@ -149,7 +150,7 @@ async def _keepalive_loop(url: str) -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Connect to MongoDB Atlas on startup; disconnect on shutdown."""
-    global mongo_client, bills_collection, users_collection
+    global mongo_client, bills_collection, users_collection, settings_collection
 
     if not MONGO_URI:
         raise RuntimeError(
@@ -161,6 +162,7 @@ async def lifespan(app: FastAPI):
     db = mongo_client["billmate"]
     bills_collection = db["bills"]
     users_collection = db["users"]
+    settings_collection = db["settings"]
 
     # Ensure index on created_at for efficient sorting
     await bills_collection.create_index([("created_at", DESCENDING)])
@@ -286,6 +288,14 @@ async def health():
 # ─────────────────────────────
 # Subscription endpoints
 # ─────────────────────────────
+async def get_app_settings():
+    """Fetch global app settings."""
+    setting = await settings_collection.find_one({"_id": "global"})
+    if not setting:
+        setting = {"_id": "global", "premium_enabled": False}
+        await settings_collection.insert_one(setting)
+    return setting
+
 async def get_user_subscription_info(user: dict):
     """Fetch user subscription info and current month scan count."""
     uid = user["uid"]
@@ -305,8 +315,10 @@ async def get_user_subscription_info(user: dict):
         if updates:
             await users_collection.update_one({"_id": uid}, {"$set": updates})
 
-    is_pro = True # Temporary: force everyone to be a pro user
-    # is_pro = user_doc.get("is_pro", False)
+    settings = await get_app_settings()
+    premium_enabled = settings.get("premium_enabled", False)
+
+    is_pro = user_doc.get("is_pro", False)
     
     # Calculate scans this month
     now = datetime.now(timezone.utc)
@@ -318,11 +330,17 @@ async def get_user_subscription_info(user: dict):
     })
     
     scan_limit = 5
+    if premium_enabled:
+        can_scan = is_pro or scan_count < scan_limit
+    else:
+        can_scan = True
+        
     return {
         "is_pro": is_pro,
         "scan_count": scan_count,
         "scan_limit": scan_limit,
-        "can_scan": is_pro or scan_count < scan_limit
+        "can_scan": can_scan,
+        "premium_enabled": premium_enabled
     }
 
 
@@ -443,6 +461,22 @@ async def revoke_pro(uid: str, admin: dict = Depends(get_current_admin)):
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="User not found")
     return {"success": True}
+
+@app.get("/api/admin/settings")
+async def get_admin_settings(admin: dict = Depends(get_current_admin)):
+    settings = await get_app_settings()
+    return {"premium_enabled": settings.get("premium_enabled", False)}
+
+@app.post("/api/admin/settings")
+async def update_admin_settings(request: Request, admin: dict = Depends(get_current_admin)):
+    body = await request.json()
+    premium_enabled = body.get("premium_enabled", False)
+    await settings_collection.update_one(
+        {"_id": "global"},
+        {"$set": {"premium_enabled": premium_enabled}},
+        upsert=True
+    )
+    return {"success": True, "premium_enabled": premium_enabled}
 # ─────────────────────────────
 # GET /bills  — read from MongoDB
 # ─────────────────────────────
