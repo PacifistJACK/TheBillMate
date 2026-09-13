@@ -399,8 +399,8 @@
             <span class="material-symbols-outlined text-3xl icon-fill">upload_file</span>
           </div>
           <div class="font-title-lg text-title-lg text-primary group-hover:text-secondary transition-colors">Upload
-            Image</div>
-          <div class="font-body-md text-body-md text-on-surface-variant text-center">Import existing receipts from your digital gallery</div>
+            File</div>
+          <div class="font-body-md text-body-md text-on-surface-variant text-center">Import images or PDF bills from your device</div>
         </label>
 
         <button id="btn-add-manual" onclick="openAddModal()"
@@ -417,7 +417,7 @@
           <div class="font-body-md text-body-md text-on-surface-variant text-center">Manually input billing records for complete control</div>
         </button>
 
-        <input id="file-upload-input" type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event)" />
+        <input id="file-upload-input" type="file" accept="image/*,application/pdf" class="hidden" onchange="handleFileUpload(event)" />
       </div>
     </section>
 
@@ -875,7 +875,7 @@
       </div>
       <div class="text-center">
         <p class="font-title-lg text-title-lg text-primary mb-1">The Bill Mate is Scanning...</p>
-        <p class="font-body-md text-body-md text-on-surface-variant">Extracting bill details&hellip;</p>
+        <p id="processing-status" class="font-body-md text-body-md text-on-surface-variant">Extracting bill details&hellip;</p>
       </div>
     </div>
   </div>
@@ -1389,8 +1389,11 @@
       const file = event.target.files[0];
       if (!file) return;
 
-      if (!file.type.startsWith('image/')) {
-        showError('Please select a valid image file (JPG, PNG, WEBP, etc.).');
+      const isImage = file.type.startsWith('image/');
+      const isPDF = file.type === 'application/pdf';
+
+      if (!isImage && !isPDF) {
+        showError('Please select a valid image file (JPG, PNG, WEBP, etc.) or a PDF.');
         event.target.value = '';
         return;
       }

@@ -15,6 +15,7 @@ import json
 import re
 import uuid
 import urllib.request
+import fitz  # PyMuPDF — PDF to image conversion
 from datetime import datetime, timezone
 from contextlib import asynccontextmanager
 import stripe
@@ -110,11 +111,12 @@ MODEL = "gemma-4-31B-it"
 # Allowed image types
 # ─────────────────────────────
 ALLOWED_MIME_TYPES = {
-    "image/jpeg": "image/jpeg",
-    "image/jpg":  "image/jpeg",
-    "image/png":  "image/png",
-    "image/webp": "image/webp",
-    "image/gif":  "image/gif",
+    "image/jpeg":       "image/jpeg",
+    "image/jpg":        "image/jpeg",
+    "image/png":        "image/png",
+    "image/webp":       "image/webp",
+    "image/gif":        "image/gif",
+    "application/pdf":  "application/pdf",
 }
 
 MAX_FILE_SIZE_MB = 10
@@ -208,6 +210,56 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+# ─────────────────────────────
+# Helper: merge multiple scanned page results into one bill
+# ─────────────────────────────
+def merge_bill_pages(pages: list[dict]) -> dict:
+    """Merge OCR results from multiple PDF pages into a single unified bill.
+
+    Strategy:
+    - vendor_name, date, gstin, cgst/sgst rates → first non-null value wins
+    - items                                     → concatenate all pages
+    - tax, cgst_amount, sgst_amount             → sum across pages
+    - total_amount                              → last page that has a non-zero total
+    """
+    merged: dict = {
+        "vendor_name":      None,
+        "gstin":            None,
+        "date":             None,
+        "items":            [],
+        "tax":              0,
+        "cgst_percentage":  None,
+        "cgst_amount":      None,
+        "sgst_percentage":  None,
+        "sgst_amount":      None,
+        "total_amount":     0,
+    }
+
+    for page in pages:
+        # First-wins metadata
+        for field in ("vendor_name", "gstin", "date", "cgst_percentage", "sgst_percentage"):
+            if merged[field] is None and page.get(field) not in (None, ""):
+                merged[field] = page[field]
+
+        # Combine items
+        if isinstance(page.get("items"), list):
+            merged["items"].extend(page["items"])
+
+        # Sum tax amounts
+        merged["tax"] = round((merged["tax"] or 0) + (page.get("tax") or 0), 2)
+        if page.get("cgst_amount") is not None:
+            merged["cgst_amount"] = round((merged["cgst_amount"] or 0) + page["cgst_amount"], 2)
+        if page.get("sgst_amount") is not None:
+            merged["sgst_amount"] = round((merged["sgst_amount"] or 0) + page["sgst_amount"], 2)
+
+        # Grand total: take the highest value seen (grand total is usually on the last page)
+        page_total = page.get("total_amount") or 0
+        if page_total > merged["total_amount"]:
+            merged["total_amount"] = page_total
+
+    return merged
 
 
 # ─────────────────────────────
@@ -629,35 +681,10 @@ async def patch_bill(bill_id: str, request: Request, user: dict = Depends(get_cu
 # ─────────────────────────────
 # POST /upload-bill  — OCR + save to MongoDB
 # ─────────────────────────────
-@app.post("/upload-bill")
-async def upload_bill(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
-    info = await get_user_subscription_info(user)
-    if not info["can_scan"]:
-        raise HTTPException(status_code=403, detail="Free limit reached. Please upgrade to Pro.")
-
-    # 1. Validate file type
-    content_type = file.content_type or ""
-    mime_type = ALLOWED_MIME_TYPES.get(content_type.lower())
-    if not mime_type:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Unsupported file type '{content_type}'. Please upload a JPEG, PNG, or WEBP image."
-        )
-
-    # 2. Read + validate size
-    image_bytes = await file.read()
-    size_mb = len(image_bytes) / (1024 * 1024)
-    if size_mb > MAX_FILE_SIZE_MB:
-        raise HTTPException(
-            status_code=400,
-            detail=f"File too large ({size_mb:.1f} MB). Maximum allowed is {MAX_FILE_SIZE_MB} MB."
-        )
-
-    # 3. Base64 encode
-    base64_image = base64.b64encode(image_bytes).decode("utf-8")
-
-    # 4. Prompt
-    prompt = """You are a highly accurate data extraction assistant. Your task is to carefully read the provided bill/invoice image and extract structured data with maximum precision.
+# ─────────────────────────────
+# Shared OCR prompt
+# ─────────────────────────────
+_OCR_PROMPT = """You are a highly accurate data extraction assistant. Your task is to carefully read the provided bill/invoice image and extract structured data with maximum precision.
 Take your time to meticulously double-check all monetary amounts, decimal points, quantities, and calculations. Accuracy is strictly prioritized over speed.
 
 Return ONLY valid JSON with no explanation, no markdown fences, and no extra text:
@@ -684,7 +711,7 @@ Return ONLY valid JSON with no explanation, no markdown fences, and no extra tex
 
 Critical Accuracy Rules:
 1. READ CAREFULLY: Go through the whole image line-by-line. Do not guess or hallucinate numbers; extract exactly what is printed.
-2. AMOUNTS & DECIMALS: Pay special attention to decimal points and commas (e.g. 1,200.50). 
+2. AMOUNTS & DECIMALS: Pay special attention to decimal points and commas (e.g. 1,200.50).
 3. HORIZONTAL ALIGNMENT (CRITICAL): Bills often have wide gaps between the item name on the left and its price on the right. Trace horizontally across the entire row to ensure you match the EXACT price to the correct item. Do not mix up prices from different rows.
 4. ITEM PRICE: The "price" field must be the total price for that line item. If the bill shows both unit price and line total, use the line total.
 5. TOTAL AMOUNT: This is the final grand total paid by the customer. Double-check that it matches the printed grand total.
@@ -699,34 +726,38 @@ Critical Accuracy Rules:
 10. DESCRIPTION: Capture any special item notes (warranty, serial number, model, SKU, expiry). Leave empty if none.
 """
 
-    # 5. Call SambaNova
+
+async def _scan_image_bytes(image_bytes: bytes, mime_type: str) -> dict:
+    """Send a single image to SambaNova and return parsed bill dict."""
+    base64_image = base64.b64encode(image_bytes).decode("utf-8")
+    loop = asyncio.get_event_loop()
     try:
-        response = client_samba.chat.completions.create(
-            model=MODEL,
-            messages=[
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:{mime_type};base64,{base64_image}"
+        response = await loop.run_in_executor(
+            None,
+            lambda: client_samba.chat.completions.create(
+                model=MODEL,
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": _OCR_PROMPT},
+                            {
+                                "type": "image_url",
+                                "image_url": {"url": f"data:{mime_type};base64,{base64_image}"}
                             }
-                        }
-                    ]
-                }
-            ],
-            temperature=0.0,
-            top_p=0.1
+                        ]
+                    }
+                ],
+                temperature=0.0,
+                top_p=0.1
+            )
         )
     except Exception as e:
         raise HTTPException(status_code=502, detail=f"SambaNova API error: {str(e)}")
 
-    # 6. Parse response
     raw_content = response.choices[0].message.content.strip()
     try:
-        bill_data = extract_json(raw_content)
+        return extract_json(raw_content)
     except ValueError:
         raise HTTPException(
             status_code=422,
@@ -736,28 +767,85 @@ Critical Accuracy Rules:
             }
         )
 
-    # 7. Save to MongoDB Atlas
+
+@app.post("/upload-bill")
+async def upload_bill(file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+    info = await get_user_subscription_info(user)
+    if not info["can_scan"]:
+        raise HTTPException(status_code=403, detail="Free limit reached. Please upgrade to Pro.")
+
+    # 1. Validate file type
+    content_type = file.content_type or ""
+    mime_type = ALLOWED_MIME_TYPES.get(content_type.lower())
+    if not mime_type:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported file type '{content_type}'. Please upload a JPEG, PNG, WEBP image or a PDF."
+        )
+
+    # 2. Read + validate size
+    file_bytes = await file.read()
+    size_mb = len(file_bytes) / (1024 * 1024)
+    if size_mb > MAX_FILE_SIZE_MB:
+        raise HTTPException(
+            status_code=400,
+            detail=f"File too large ({size_mb:.1f} MB). Maximum allowed is {MAX_FILE_SIZE_MB} MB."
+        )
+
+    # 3. Handle PDF vs image
+    if mime_type == "application/pdf":
+        # ── PDF path: render each page → PNG bytes → scan → merge ──
+        try:
+            pdf_doc = fitz.open(stream=file_bytes, filetype="pdf")
+        except Exception as e:
+            raise HTTPException(status_code=400, detail=f"Could not open PDF: {e}")
+
+        if pdf_doc.page_count == 0:
+            raise HTTPException(status_code=400, detail="The uploaded PDF has no pages.")
+
+        print(f"[INFO] PDF upload: {pdf_doc.page_count} page(s) — scanning each page...")
+
+        page_results = []
+        for page_num in range(pdf_doc.page_count):
+            page = pdf_doc.load_page(page_num)
+            # Render at 2× zoom for better OCR quality
+            mat = fitz.Matrix(2.0, 2.0)
+            pix = page.get_pixmap(matrix=mat, alpha=False)
+            page_png_bytes = pix.tobytes("png")
+            print(f"[INFO] Scanning PDF page {page_num + 1}/{pdf_doc.page_count}...")
+            page_data = await _scan_image_bytes(page_png_bytes, "image/png")
+            page_results.append(page_data)
+
+        pdf_doc.close()
+        bill_data = merge_bill_pages(page_results)
+        print(f"[INFO] PDF scan complete — {len(page_results)} pages merged.")
+
+    else:
+        # ── Image path: single scan ──
+        bill_data = await _scan_image_bytes(file_bytes, mime_type)
+
+    # 4. Save to MongoDB Atlas
     bill_id = str(uuid.uuid4())
     new_bill = {
-        "_id":          bill_id,
-        "user_id":      user["uid"],
-        "vendor_name":  bill_data.get("vendor_name"),
-        "bill_date":    bill_data.get("date"),
-        "items":        bill_data.get("items") or [],
-        "tax":          bill_data.get("tax") or 0,
+        "_id":             bill_id,
+        "user_id":         user["uid"],
+        "vendor_name":     bill_data.get("vendor_name"),
+        "bill_date":       bill_data.get("date"),
+        "items":           bill_data.get("items") or [],
+        "tax":             bill_data.get("tax") or 0,
         "cgst_percentage": bill_data.get("cgst_percentage"),
-        "cgst_amount":  bill_data.get("cgst_amount"),
+        "cgst_amount":     bill_data.get("cgst_amount"),
         "sgst_percentage": bill_data.get("sgst_percentage"),
-        "sgst_amount":  bill_data.get("sgst_amount"),
-        "gstin":        bill_data.get("gstin"),
-        "total_amount": bill_data.get("total_amount") or 0,
-        "created_at":   datetime.now(timezone.utc).isoformat(),
+        "sgst_amount":     bill_data.get("sgst_amount"),
+        "gstin":           bill_data.get("gstin"),
+        "total_amount":    bill_data.get("total_amount") or 0,
+        "created_at":      datetime.now(timezone.utc).isoformat(),
     }
     await bills_collection.insert_one(new_bill)
 
-    # 8. Return extracted data (with the generated id so the frontend can reference it)
+    # 5. Return extracted data (with the generated id so the frontend can reference it)
     result_bill = serialize_bill(new_bill)
-    result_bill["date"] = result_bill["bill_date"] # fallback for frontend
+    result_bill["date"] = result_bill["bill_date"]  # fallback for frontend
     return result_bill
 
 

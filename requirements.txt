@@ -9,3 +9,4 @@ pymongo>=4.6.0
 firebase_admin
 stripe
 openpyxl
+pymupdf
